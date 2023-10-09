@@ -1,0 +1,31 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PostType {
+  poll
+  announcement
+  content
+  invite
+}
+
+model User {
+  address       String @id // user address on the blockchain
+  chaos_user_id String @unique
+}
+
+model PostMeta {
+  id   String   @id // message id on chaos
+  type PostType @default(content)
+}
+
+model VesselMeta {
+}

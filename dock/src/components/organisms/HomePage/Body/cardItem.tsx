@@ -1,9 +1,9 @@
 "use client"
 
 import React from 'react'
-import { Button } from '../ui/button'
+import { Button } from '../../../ui/button'
 
-function Card() {
+function CardItem() {
   return (
     <div className="flex flex-col items-center justify-start rounded-md shadow-sm overflow-hidden">
         <div className="flex flex-row items-center justify-center w-full  bg-slate-300 px-5 py-5">
@@ -14,11 +14,11 @@ function Card() {
                 Discuss all things SpongeBob
             </span>
             <Button size="sm" >
-                Join
+           Request to Join
             </Button>
         </div>
     </div>
   )
 }
 
-export default Card
+export default CardItem

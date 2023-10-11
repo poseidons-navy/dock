@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { Button } from '../../../ui/button'
+import Link from 'next/link'
 
 function CardItem() {
   return (
@@ -13,9 +14,11 @@ function CardItem() {
             <span>
                 Discuss all things SpongeBob
             </span>
-            <Button size="sm" >
+           <Link href="/Posts" legacyBehavior={true}>
+           <Button size="sm" >
            Request to Join
             </Button>
+           </Link>
         </div>
     </div>
   )

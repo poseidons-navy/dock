@@ -17,18 +17,76 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Vessel } from "./vessel";
+import { useConnection, useWallet } from '@solana/wallet-adapter-react'
+import * as web3 from '@solana/web3.js'
+const VESSEL_REVIEW_PROGRAM_ID = 'AbrLPc6a5SyWA32E4BMsq31WodUhimWX8J9xGCJScGYz';
+
+
 function AppBar() {
-const [vesselDetails, setVesselDetails] = useState({
-  name:"",
-  description:""
-})
-function handleChange(event: React.ChangeEvent<HTMLInputElement>)
-{
-  setVesselDetails(prevDetails=>({
-    ...prevDetails,
-    [event.target.name]:event.target.value
-  }))
+
+const [name, setName] = useState('')
+const [description, setDescription] = useState('')
+
+
+const { connection } = useConnection();
+const { publicKey, sendTransaction } = useWallet();
+
+
+const handleSubmit = (event: any) => {
+  event.preventDefault()
+  const vessel = new Vessel(name, description)
+  handleTransactionSubmit(vessel)
 }
+const handleTransactionSubmit = async (vessel: Vessel) => {
+  if (!publicKey) {
+      alert('Please connect your wallet!')
+      return
+  }
+
+  const buffer = vessel.serialize()
+  const transaction = new web3.Transaction()
+
+  const [pda] = await web3.PublicKey.findProgramAddressSync(
+      [publicKey.toBuffer(), new TextEncoder().encode(vessel.name)],
+      new web3.PublicKey(VESSEL_REVIEW_PROGRAM_ID)
+  )
+  const instruction = new web3.TransactionInstruction({
+    keys: [
+        {
+            pubkey: publicKey,
+            isSigner: true,
+            isWritable: false,
+        },
+        {
+            pubkey: pda,
+            isSigner: false,
+            isWritable: true
+        },
+        {
+            pubkey: web3.SystemProgram.programId,
+            isSigner: false,
+            isWritable: false
+        }
+    ],
+    data: buffer,
+    programId: new web3.PublicKey(VESSEL_REVIEW_PROGRAM_ID)
+})
+
+transaction.add(instruction)
+
+try {
+    let txid = await sendTransaction(transaction, connection)
+    alert(`Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`)
+    console.log(`Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`)
+} catch (e) {
+    console.log(JSON.stringify(e))
+    alert(JSON.stringify(e))
+}
+}
+
+
+
 
   return (
     <div className="flex flex-row items-center justify-center w-full space-x-4 pt-4">
@@ -56,8 +114,9 @@ function handleChange(event: React.ChangeEvent<HTMLInputElement>)
                   </Label>
                   <Input
                     id="name"
-                    value={vesselDetails.name}
+                    value={name}
                     className="col-span-3"
+                    onChange={e=>setName(e.target.value)}
                   />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
@@ -66,15 +125,15 @@ function handleChange(event: React.ChangeEvent<HTMLInputElement>)
                   </Label>
                   <Input
                     id="description"
-                    value={vesselDetails.description}
+                    value={description}
                     className="col-span-3"
-                    onChange={handleChange}
+                    onChange={e=>setDescription(e.target.value)}
                   />
                 </div>
               </div>
               <SheetFooter>
                 <SheetClose asChild>
-                  <Button type="submit">Save</Button>
+                  <Button type="submit" onClick={handleSubmit}>Save</Button>
                 </SheetClose>
               </SheetFooter>
             </SheetContent>

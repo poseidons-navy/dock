@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 function CreatePost() {
   return (
     <div>
-      <Input placeholder="Create Post" className="w-full" />
+      <Input placeholder="Create Proposal" className="w-full mt-2" />
     </div>
   );
 }

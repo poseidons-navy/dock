@@ -12,6 +12,7 @@
     "@radix-ui/react-slot": "^1.0.2",
     "@solana/wallet-adapter-react": "^0.15.35",
     "@supabase/supabase-js": "^2.38.0",
+    "axios": "^1.5.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "lodash": "^4.17.21",

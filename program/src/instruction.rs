@@ -51,6 +51,28 @@ pub enum VesselInstruction {
         chaos_participant_id: String,
         vessel_id: String
     },
+    CreateContent {
+        vessel_id: String,
+        id: String,
+        post_id: String,
+        user_id: String,
+        chaos_message_id: String
+    },
+    CreateInvitation {
+        vessel_id: String,
+        id: String,
+        post_id: String,
+        due: String,
+        user_id: String,
+        chaos_message_id: String
+    },
+    CreatePoll {
+        vessel_id: String,
+        id: String,
+        post_id: String,
+        user_id: String,
+        chaos_message_id: String
+    }
     // InviteSpecialist {
     //     id: u64,
     //     role: String
@@ -76,6 +98,14 @@ pub struct VesselInstructionStruct {
     pub vessel_id: String,
     pub creator_id: String,
     pub chaos_channel_id: String,
+    pub post_type: String,
+    pub chaos_message_id: String,
+    pub post_id: String,
+    pub due: String,
+    pub for_invite: u64,
+    pub against_invite: u64,
+    pub upvotes: u64,
+    pub downvotes: u64
 }
 
 impl VesselInstruction {
@@ -100,6 +130,9 @@ impl VesselInstruction {
             9 => Self::GetVessels,
             10 => Self::RequestInvite { member: payload.member, vessel_address: payload.vessel_address },
             11 => Self::AddMember { user_type: payload.user_type, user_id: payload.user_id, chaos_participant_id: payload.chaos_participant_id, vessel_id: payload.vessel_id },
+            12 => Self::CreateContent { vessel_id: payload.vessel_id, id: payload.id, post_id: payload.post_id, user_id: payload.user_id, chaos_message_id: payload.chaos_message_id },
+            13 => Self::CreateInvitation { vessel_id: payload.vessel_id, id: payload.id, post_id: payload.post_id, due: payload.due, user_id: payload.user_id, chaos_message_id: payload.chaos_message_id },
+            14 => Self::CreatePoll { vessel_id: payload.vessel_id, id: payload.id, post_id: payload.post_id, user_id: payload.user_id, chaos_message_id: payload.chaos_message_id },
             _ => return Err(ProgramError::InvalidInstructionData)
         })
     }

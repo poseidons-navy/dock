@@ -1,14 +1,14 @@
 use solana_program::{
-    account_info::{AccountInfo, next_account_info},
+    account_info::AccountInfo,
     pubkey::Pubkey,
     entrypoint,
     entrypoint::ProgramResult
 };
 
-use crate::instruction::VesselInstruction;
+use crate::{instruction::VesselInstruction, processor::create_invitation};
 use crate::processor::{
     create_vessel,
-    invite_founding_member,
+    // invite_founding_member,
     invite_member,
     award_community_token,
     create_task,
@@ -19,7 +19,8 @@ use crate::processor::{
     get_vessels,
     request_invite,
     add_member,
-    invite_specialist_member
+    create_content,
+    create_poll
 };
 
 
@@ -44,6 +45,15 @@ pub fn process_instruction(
     match instruction {
         VesselInstruction::CreateVessel { id, creator_id, name, description, chaos_channel_id, amount_token } => {
             create_vessel::create_vessel(name, id, description, chaos_channel_id, creator_id, amount_token, program_id, accounts)
+        },
+        VesselInstruction::CreateContent { vessel_id, id, post_id, user_id, chaos_message_id } => {
+            create_content::create_content(post_id, user_id, vessel_id, id, chaos_message_id, accounts, program_id)
+        },
+        VesselInstruction::CreateInvitation { vessel_id, id, post_id, due, user_id, chaos_message_id } => {
+            create_invitation::create_invitation(due, post_id, user_id, vessel_id, id, chaos_message_id, accounts, program_id)
+        },
+        VesselInstruction::CreatePoll { vessel_id, id, post_id, user_id, chaos_message_id } => {
+            create_poll::create_poll(post_id, user_id, vessel_id, id, chaos_message_id, accounts, program_id)
         },
         // VesselInstruction::InviteFoundingMember { id } => {
         //     invite_founding_member::invite_founding_member(program_id, accounts, id)

@@ -8,9 +8,8 @@ use solana_program::{
     msg
 };
 
-use crate::processor::create_vessel::{self, get_vessel_size};
+use crate::processor::create_vessel;
 
-use borsh::BorshDeserialize;
 use borsh::ser::BorshSerialize;
 
 use crate::state::{Vessel, Member};
@@ -117,7 +116,7 @@ mod tests {
         solana_program::instruction::{AccountMeta, Instruction},
         solana_sdk::{signature::Signer, transaction::Transaction, signer::keypair::Keypair},
         crate::instruction::VesselInstructionStruct,
-        borsh::BorshSerialize,
+        borsh::{BorshSerialize, BorshDeserialize},
     };
 
 
@@ -139,7 +138,15 @@ mod tests {
             chaos_participant_id: String::from("chaos_participant#1"),
             vessel_id: String::from("VesselID"),
             creator_id: String::from(""),
-            chaos_channel_id: String::from("")
+            chaos_channel_id: String::from(""),
+            post_id: String::from(""),
+            post_type: String::from(""),
+            chaos_message_id: String::from(""),
+            due: String::from(""),
+            for_invite: 0,
+            against_invite: 0,
+            upvotes: 0,
+            downvotes: 0
         };
         // Create vessel
         let mut sink = vec![0];

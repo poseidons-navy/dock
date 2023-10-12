@@ -10,8 +10,6 @@ use solana_program::{
     msg
 };
 
-use solana_sdk::borsh0_10::try_from_slice_unchecked;
-
 pub fn get_vessel_size(vessel: &Vessel) -> usize {
     const PUBKEY_SIZE: usize = 32;
     let mut member_size = 0;
@@ -28,7 +26,37 @@ pub fn get_vessel_size(vessel: &Vessel) -> usize {
         category_size += 4 + y.len()
     }
 
-    let size = is_initialized + (4 + vessel.name.len()) + (4 + vessel.description.len()) + amount_token + member_size + is_created + category_size + (4 + vessel.id.len()) + (4 + vessel.creator_id.len()) + PUBKEY_SIZE + (4 + vessel.chaos_channel_id.len());
+    // Calculating content size
+    let mut content_size = 0;
+    let upvote_size = 4;
+    let downvote_size = 4;
+    for z in vessel.contents.iter() {
+        content_size += upvote_size + downvote_size + 4 + z.id.len() + z.post_id.len()
+    }
+
+    // Calculating post size
+    let mut post_size = 0;
+    for w in vessel.posts.iter() {
+        post_size += PUBKEY_SIZE + 4 + w.chaos_message_id.len() + 4 + w.id.len() + 4 + w.post_type.len() + 4 + w.user_id.len()
+    }
+
+    // Calculating invitation size
+    let mut invitation_size = 0;
+    let for_invite = 4;
+    let against_invite = 4;
+    for v in vessel.invites.iter() {
+        invitation_size += PUBKEY_SIZE + for_invite + against_invite + 4 + v.id.len() + 4 + v.due.len() + 4 + v.post_id.len()
+    }
+
+    // Calculating poll size
+    let mut poll_size = 0;
+    let for_poll = 4;
+    let against_poll = 4;
+    for u in vessel.polls.iter() {
+        poll_size += for_poll + against_poll + 4 + u.id.len() + 4 + u.post_id.len()
+    }
+
+    let size = is_initialized + (4 + vessel.name.len()) + (4 + vessel.description.len()) + amount_token + member_size + is_created + category_size + (4 + vessel.id.len()) + (4 + vessel.creator_id.len()) + PUBKEY_SIZE + (4 + vessel.chaos_channel_id.len()) + content_size + post_size + invitation_size + poll_size;
     size + 100
 }
 
@@ -59,7 +87,7 @@ pub fn invoke_signed_transaction(
 
 use std::convert::TryInto;
 use crate::state::Vessel;
-use borsh::{BorshSerialize, BorshDeserialize};
+use borsh::BorshSerialize;
 
 pub fn my_try_from_slice_unchecked<T: borsh::BorshDeserialize>(data: &[u8]) -> Result<T, ProgramError> {
     let mut data_mut = data;
@@ -101,7 +129,11 @@ pub fn create_vessel(
         id: id.clone(),
         creator_id,
         owner_key: owner.key.clone().to_bytes(),
-        chaos_channel_id
+        chaos_channel_id,
+        posts: Vec::new(),
+        polls: Vec::new(),
+        contents: Vec::new(),
+        invites: Vec::new()
     };
 
     msg!("Calculating Rent");
@@ -164,7 +196,7 @@ mod tests {
         solana_program::instruction::{AccountMeta, Instruction},
         solana_sdk::{signature::Signer, transaction::Transaction, signer::keypair::Keypair},
         crate::instruction::VesselInstructionStruct,
-        borsh::BorshSerialize,
+        borsh::{BorshSerialize, BorshDeserialize},
     };
 
 
@@ -186,7 +218,15 @@ mod tests {
             chaos_participant_id: String::from(""),
             vessel_id: String::from(""),
             creator_id: String::from(""),
-            chaos_channel_id: String::from("")
+            chaos_channel_id: String::from(""),
+            post_id: String::from(""),
+            post_type: String::from(""),
+            chaos_message_id: String::from(""),
+            due: String::from(""),
+            for_invite: 0,
+            against_invite: 0,
+            upvotes: 0,
+            downvotes: 0
         };
         let mut sink = vec![0];
         instruction_data.serialize( &mut sink).unwrap();

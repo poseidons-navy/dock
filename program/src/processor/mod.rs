@@ -11,3 +11,6 @@ pub mod get_vessels;
 pub mod request_invite;
 pub mod add_member;
 pub mod invite_specialist_member;
+pub mod create_content;
+pub mod create_invitation;
+pub mod create_poll;

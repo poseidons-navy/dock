@@ -93,3 +93,127 @@ pub fn create_invitation(
     account_data.serialize(&mut &mut pda_account.data.borrow_mut()[..])?;
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use {
+        super::*,
+        solana_program_test::*,
+        solana_program::system_program,
+        solana_program::instruction::{AccountMeta, Instruction},
+        solana_sdk::{signature::Signer, transaction::Transaction, signer::keypair::Keypair},
+        crate::instruction::VesselInstructionStruct,
+        borsh::{BorshSerialize, BorshDeserialize},
+    };
+
+
+    #[tokio::test]
+    async fn create_poll_works() {
+        let instruction_data = VesselInstructionStruct {
+            id: String::from("VesselID"),
+            name: String::from("Vessel Name"),
+            description: String::from("Some Vessel"),
+            amount_token: 64,
+            address: String::from(""),
+            title: String::from(""),
+            voted_member: String::from(""),
+            member: String::from(""),
+            vote: true,
+            vessel_address: String::from(""),
+            user_type: String::from("member"),
+            user_id: String::from("user#2"),
+            chaos_participant_id: String::from("chaos_participant#1"),
+            vessel_id: String::from("VesselID"),
+            creator_id: String::from(""),
+            chaos_channel_id: String::from(""),
+            post_id: String::from("post#1"),
+            post_type: String::from("invitation"),
+            chaos_message_id: String::from("sfafd"),
+            due: String::from("13-10-2023"),
+            for_invite: 0,
+            against_invite: 0,
+            upvotes: 0,
+            downvotes: 0
+        };
+        // Create vessel
+        let mut sink = vec![0];
+        instruction_data.serialize( &mut sink).unwrap();
+        let program_id = Pubkey::new_unique();
+
+        let (mut banks_client, payer, recent_blockhash) = ProgramTest::new(
+            "Poseidons Dock",
+            program_id,
+            processor!(crate::entrypoint::process_instruction)
+        )
+        .start()
+        .await;
+
+        let test_account = Keypair::new();
+
+        let mut transaction = Transaction::new_with_payer(
+            &[Instruction {
+                program_id,
+                accounts: vec![
+                    AccountMeta::new(payer.pubkey(), true),
+                    AccountMeta::new(test_account.pubkey(), true),
+                    AccountMeta::new(system_program::id(), false)
+                ],
+                data: sink
+            }],
+            Some(&payer.pubkey()),
+        );
+
+        transaction.sign(&[&payer, &test_account], recent_blockhash);
+
+        banks_client.process_transaction(transaction).await.unwrap();
+
+        // Create a invitation for the vessel
+        let mut sink2 = vec![13];
+        instruction_data.serialize( &mut sink2).unwrap();
+        let mut transaction2 = Transaction::new_with_payer(
+            &[Instruction {
+                program_id,
+                accounts: vec![
+                    AccountMeta::new(payer.pubkey(), true),
+                    AccountMeta::new(payer.pubkey(), true),
+                    AccountMeta::new(test_account.pubkey(), true),
+                    AccountMeta::new(system_program::id(), false)
+                ],
+                data: sink2
+            }],
+            Some(&payer.pubkey()),
+        );
+
+        transaction2.sign(&[&payer, &test_account], recent_blockhash);
+
+        banks_client.process_transaction(transaction2).await.unwrap();
+
+        // Test if any of the created members has the id of the added member
+        let created_account = banks_client.get_account(test_account.pubkey()).await;
+
+        match created_account {
+            Ok(None) => assert_eq!(false, true),
+            Ok(Some(account)) => {
+                let vessel = Vessel::deserialize(&mut account.data.to_vec().as_ref()).unwrap();
+                
+                // See if any poll was added
+                assert!(vessel.invites.len() >= 1, "No invite was created `{}`", vessel.name);
+
+                // See if any post was added
+                assert!(vessel.posts.len() >= 1, "No post was created `{}`", vessel.name);
+
+                // See if the write member was created
+                let mut found = false;
+                for x in vessel.invites {
+                    if x.post_id == instruction_data.post_id {
+                        found = true
+                    }
+                }
+
+                assert_eq!(found, true, "The wrong invite was created");
+            },
+            Err(_) => assert_eq!(false, true),
+        }
+
+    }
+}

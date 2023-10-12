@@ -10,20 +10,21 @@
 //     program::invoke,
 // };
 
-// use crate::state::{Vessel, Founder};
+// use crate::state::{Vessel, Founder, Specialist};
 
-// pub fn invite_founding_member(
+// pub fn invite_specialist(
 //     program_id: &Pubkey,
 //     accounts: &[AccountInfo],
 //     id: u64,
+//     role: String
 // ) -> ProgramResult {
-//     msg!("Inviting Founding Members...");
+//     msg!("Inviting Specialist Members...");
 
 //     msg!("Get Accounts");
 //     // Extract accounts
 //     let accounts_iter = &mut accounts.iter();
 
-//     let founder_account = next_account_info(accounts_iter)?;
+//     let specilist_account = next_account_info(accounts_iter)?;
 //     let owner = next_account_info(accounts_iter)?;
 //     let pda_account = next_account_info(accounts_iter)?;
 //     let system_program_account = next_account_info(accounts_iter)?;
@@ -38,19 +39,13 @@
 
 //     // Get account data from pda_account
 //     let mut account_data = try_from_slice_unchecked::<Vessel>(&pda_account.data.borrow()).unwrap();
-
-//     // Check if more than 3 founders are in community
-//     if account_data.founders.len() >= 3 {
-//         msg!("There are already 3 founders in the community");
-//         return Err(ProgramError::InvalidAccountData);
-//     }
     
 //     // Get founder data
-//     let founder_data = Founder::try_from_slice(&founder_account.data.borrow())?;
+//     let specialist_data = Specialist::try_from_slice(&specilist_account.data.borrow())?;
 
 
 //     // Add to the account data
-//     account_data.founders.push(Founder { key: founder_data.key.clone(), owner_key: owner.key.clone() });
+//     account_data.specialists.push(Specialist { role: role, key: specilist_account.key.clone(), owner_key: owner.key.clone() });
 
 //     // If length of founders is equal to 3 set isCreated to true
 //     if account_data.founders.len() == 3 {

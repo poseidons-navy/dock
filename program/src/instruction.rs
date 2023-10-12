@@ -1,19 +1,19 @@
 use borsh::BorshDeserialize;
-use solana_program::{
-    program_error::ProgramError,
-};
+use solana_program::program_error::ProgramError;
 
 // Define the instructions that I'll be processing
 pub enum VesselInstruction {
     CreateVessel {
-        id: u64,
+        id: String,
+        creator_id: String,
         name: String,
         description: String,
+        chaos_channel_id: String,
         amount_token: u64,
     },
-    InviteFoundingMember {
-        address: String,
-    },
+    // InviteFoundingMember {
+    //     id: u64,
+    // },
     InviteMember {
         address: String
     },
@@ -46,14 +46,21 @@ pub enum VesselInstruction {
         vessel_address: String
     },
     AddMember {
-        id: u64 
-    }
+        user_type: String,
+        user_id: String,
+        chaos_participant_id: String,
+        vessel_id: String
+    },
+    // InviteSpecialist {
+    //     id: u64,
+    //     role: String
+    // }
 }
 
 // Define data in instruction
 #[derive(BorshDeserialize)]
 struct VesselInstructionStruct {
-    id: u64,
+    id: String,
     name: String,
     description: String,
     amount_token: u64,
@@ -62,7 +69,13 @@ struct VesselInstructionStruct {
     voted_member: String,
     member: String,
     vote: bool,
-    vessel_address: String
+    vessel_address: String,
+    user_type: String,
+    user_id: String,
+    chaos_participant_id: String,
+    vessel_id: String,
+    creator_id: String,
+    chaos_channel_id: String,
 }
 
 impl VesselInstruction {
@@ -75,8 +88,8 @@ impl VesselInstruction {
 
         // Match based on variant
         Ok(match variant {
-            0 => Self::CreateVessel { name: payload.name, description: payload.description, amount_token: payload.amount_token, id: payload.id },
-            1 => Self::InviteFoundingMember { address: payload.address },
+            0 => Self::CreateVessel { id: payload.id, creator_id: payload.creator_id, name: payload.name, description: payload.description, chaos_channel_id: payload.chaos_channel_id, amount_token: payload.amount_token },
+            // 1 => Self::InviteFoundingMember { address: payload.address },
             2 => Self::InviteMember { address: payload.address },
             3 => Self::AwardCommunityToken { address: payload.address },
             4 => Self::CreateTask { title: payload.title, description: payload.description, amount_token: payload.amount_token },
@@ -86,7 +99,7 @@ impl VesselInstruction {
             8 => Self::VoteMemberOut { member: payload.member, vote: payload.vote },
             9 => Self::GetVessels,
             10 => Self::RequestInvite { member: payload.member, vessel_address: payload.vessel_address },
-            11 => Self::AddMember { id: payload.id},
+            11 => Self::AddMember { user_type: payload.user_type, user_id: payload.user_id, chaos_participant_id: payload.chaos_participant_id, vessel_id: payload.vessel_id },
             _ => return Err(ProgramError::InvalidInstructionData)
         })
     }

@@ -18,7 +18,8 @@ use crate::processor::{
     vote_member_out,
     get_vessels,
     request_invite,
-    add_member
+    add_member,
+    invite_specialist_member
 };
 
 
@@ -41,12 +42,12 @@ fn process_instruction(
 
     // Run different functions based on type of instruction
     match instruction {
-        VesselInstruction::CreateVessel { id, name, description, amount_token } => {
-            create_vessel::create_vessel(id, name, description, amount_token, program_id, accounts)
-        }
-        VesselInstruction::InviteFoundingMember { address } => {
-            invite_founding_member::invite_founding_member(program_id, accounts, address)
+        VesselInstruction::CreateVessel { id, creator_id, name, description, chaos_channel_id, amount_token } => {
+            create_vessel::create_vessel(name, id, description, chaos_channel_id, creator_id, amount_token, program_id, accounts)
         },
+        // VesselInstruction::InviteFoundingMember { id } => {
+        //     invite_founding_member::invite_founding_member(program_id, accounts, id)
+        // },
         VesselInstruction::InviteMember { address } => {
             invite_member::invite_member(program_id, accounts, address)
         },
@@ -74,8 +75,11 @@ fn process_instruction(
         VesselInstruction::RequestInvite { member, vessel_address } => {
             request_invite::request_invite(program_id, accounts, member, vessel_address)
         },
-        VesselInstruction::AddMember { id } => {
-            add_member::add_member(program_id, accounts, id)
+        VesselInstruction::AddMember { user_type, user_id, chaos_participant_id, vessel_id } => {
+            add_member::add_member(vessel_id, user_type, user_id, chaos_participant_id, accounts, program_id)
         }
+        // VesselInstruction::InviteSpecialist { id } => {
+        //     invite_specialist_member::invite_specialist(program_id, accounts, id)
+        // }
     }
 }

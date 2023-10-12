@@ -10,3 +10,4 @@ pub mod vote_member_out;
 pub mod get_vessels;
 pub mod request_invite;
 pub mod add_member;
+pub mod invite_specialist_member;

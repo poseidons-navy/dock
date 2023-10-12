@@ -1,4 +1,4 @@
-use borsh::BorshDeserialize;
+use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::program_error::ProgramError;
 
 // Define the instructions that I'll be processing
@@ -58,24 +58,24 @@ pub enum VesselInstruction {
 }
 
 // Define data in instruction
-#[derive(BorshDeserialize)]
-struct VesselInstructionStruct {
-    id: String,
-    name: String,
-    description: String,
-    amount_token: u64,
-    address: String,
-    title: String,
-    voted_member: String,
-    member: String,
-    vote: bool,
-    vessel_address: String,
-    user_type: String,
-    user_id: String,
-    chaos_participant_id: String,
-    vessel_id: String,
-    creator_id: String,
-    chaos_channel_id: String,
+#[derive(BorshDeserialize, BorshSerialize)]
+pub struct VesselInstructionStruct {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub amount_token: u64,
+    pub address: String,
+    pub title: String,
+    pub voted_member: String,
+    pub member: String,
+    pub vote: bool,
+    pub vessel_address: String,
+    pub user_type: String,
+    pub user_id: String,
+    pub chaos_participant_id: String,
+    pub vessel_id: String,
+    pub creator_id: String,
+    pub chaos_channel_id: String,
 }
 
 impl VesselInstruction {

@@ -25,7 +25,7 @@ use crate::processor::{
 
 entrypoint!(process_instruction);
 
-fn process_instruction(
+pub fn process_instruction(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
     instruction_data: &[u8]
@@ -34,11 +34,11 @@ fn process_instruction(
     let instruction = VesselInstruction::unpack(instruction_data)?;
 
     // Get accounts
-    let accounts_iter = &mut accounts.iter();
+    // let accounts_iter = &mut accounts.iter();
 
-    let owner = next_account_info(accounts_iter)?;
-    let pda_account = next_account_info(accounts_iter)?;
-    let system_program = next_account_info(accounts_iter)?;
+    // let owner = next_account_info(accounts_iter)?;
+    // let pda_account = next_account_info(accounts_iter)?;
+    // let system_program = next_account_info(accounts_iter)?;
 
     // Run different functions based on type of instruction
     match instruction {

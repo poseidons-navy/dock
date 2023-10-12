@@ -3,16 +3,14 @@ use solana_program::{
     entrypoint::ProgramResult,
     program_error::ProgramError,
     pubkey::Pubkey,
-    borsh0_10::try_from_slice_unchecked,
     sysvar::{rent::Rent, Sysvar},
     system_instruction,
-    program::invoke,
     msg
 };
 
 use crate::processor::create_vessel;
 
-use borsh::{BorshDeserialize};
+use borsh::BorshDeserialize;
 use borsh::ser::BorshSerialize;
 
 use crate::state::{Vessel, Member};
@@ -20,7 +18,7 @@ use crate::state::{Vessel, Member};
 pub fn check_if_user_type_is_valid(
     user_type: &String
 ) -> bool {
-    if (user_type == "member" || user_type == "founder" || user_type == "creator" || user_type == "specialist" || user_type == "invitee" || user_type == "invited_founder") {
+    if user_type == "member" || user_type == "founder" || user_type == "creator" || user_type == "specialist" || user_type == "invitee" || user_type == "invited_founder" {
         true
     } else {
         false
@@ -59,7 +57,7 @@ pub fn add_member(
 
     // Deserialize it
     let mut account_data = Vessel::try_from_slice(&pda_account.data.borrow()).unwrap();
-    let member_data: Member = Member::try_from_slice(&member_account.data.borrow())?;
+    // let member_data: Member = Member::try_from_slice(&member_account.data.borrow())?;
 
     // Update it
     let new_member = Member {
@@ -76,7 +74,7 @@ pub fn add_member(
     let new_account_size = create_vessel::get_vessel_size(&account_data);
     let new_rent_lamports = rent.minimum_balance(new_account_size);
 
-    if (pda_account.lamports() < new_rent_lamports) {
+    if pda_account.lamports() < new_rent_lamports {
         // Charge member for lamports
         let lamports_to_be_paid = new_rent_lamports - pda_account.lamports();
         if member_account.lamports() > lamports_to_be_paid {
@@ -90,7 +88,7 @@ pub fn add_member(
             owner.key, 
             &vessel_id, 
             bump_seed
-        );
+        )?;
     }
 
     // Save changes in account

@@ -1,5 +1,5 @@
 import axios from "axios";
-import {APP_ID, APP_SECRET, CHAOS_BASE_URL} from "./constants.ts";
+import {APP_ID, APP_SECRET, CHAOS_BASE_URL} from "./constants";
 
 
 export const getAccessToken = async (organization_id: string, app_id: string, user_id: string) => {

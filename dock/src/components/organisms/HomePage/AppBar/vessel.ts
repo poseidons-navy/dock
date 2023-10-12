@@ -3,10 +3,12 @@ import * as borsh from "@project-serum/borsh";
 export class Vessel {
   name: string;
   description: string;
+  vesselId: string
 
-  constructor(name: string, description: string) {
+  constructor(name: string, description: string, vesselId: string) {
     this.name = name;
     this.description = description;
+    this.vesselId = vesselId
   }
 
   borshInstructionSchema = borsh.struct([

@@ -1,5 +1,5 @@
 import axios, { Axios } from 'axios'
-import {APP_ID, APP_SECRET, CHAOS_BASE_URL, ORGANIZATION_ID} from "./constants.ts";
+import {APP_ID, APP_SECRET, CHAOS_BASE_URL, ORGANIZATION_ID} from "./constants";
 import {isNull} from "lodash";
 
 const getUserId = () => {

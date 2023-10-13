@@ -1,76 +1,119 @@
 "use client";
-import * as React from "react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Box from "@mui/material/Box";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import AppBar from "@/components/organisms/HomePage/AppBar/appbar";
 
-function samePageLinkNavigation(
-  event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
-) {
-  if (
-    event.defaultPrevented ||
-    event.button !== 0 || // ignore everything but left-click
-    event.metaKey ||
-    event.ctrlKey ||
-    event.altKey ||
-    event.shiftKey
-  ) {
-    return false;
-  }
-  return true;
-}
-
-interface LinkTabProps {
-  label?: string;
-  href?: string;
-}
-
-function LinkTab(props: LinkTabProps) {
+import InputAdornment from "@mui/material/InputAdornment";
+import TextField from "@mui/material/TextField";
+import { BiPlusCircle } from "react-icons/bi";
+function TabsDemo() {
   return (
-    <Tab
-      component="a"
-      onClick={(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-        // Routing libraries handle this, you can remove the onClick handle when using them.
-        if (samePageLinkNavigation(event)) {
-          event.preventDefault();
-        }
-      }}
-      {...props}
-    />
+  <div className="flex flex-col justify-center items-center">
+      <Tabs defaultValue="proposals" className="w-1/3 ">
+      <TabsList className="grid w-full grid-cols-3">
+        <TabsTrigger value="proposal">Proposal</TabsTrigger>
+        <TabsTrigger value="announcement">Announcement</TabsTrigger>
+        <TabsTrigger value="poll">Poll</TabsTrigger>
+      </TabsList>
+      <TabsContent value="proposal">
+        <Card>
+          <CardHeader>
+            <CardTitle>Proposal</CardTitle>
+            <CardDescription>
+              Create a proposal for the community members from here
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="space-y-1">
+              <Label htmlFor="name">Title</Label>
+              <Input id="name" defaultValue="Title" />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="proposal">Proposal body</Label>
+              <Textarea placeholder="Type your entire proposal." />
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button>Post</Button>
+          </CardFooter>
+        </Card>
+      </TabsContent>
+      <TabsContent value="announcement">
+        <Card>
+          <CardHeader>
+            <CardTitle>Announcement</CardTitle>
+            <CardDescription>
+              Create an announcement for the community
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="space-y-1">
+              <Label htmlFor="current">Title</Label>
+              <Input id="current" defaultValue="title" />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="new">Announcement body</Label>
+              <Textarea placeholder="Type your entire announcement." />
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button>Post</Button>
+          </CardFooter>
+        </Card>
+      </TabsContent>
+      <TabsContent value="poll">
+        <Card>
+          <CardHeader>
+            <CardTitle>Poll</CardTitle>
+            <CardDescription>Create a poll for the community</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="space-y-1">
+              <Label htmlFor="proposal">Proposal body</Label>
+              <Textarea placeholder="Type your post for the poll." />
+              <Box sx={{ "& > :not(style)": { m: 1 } }}>
+                <TextField
+                  id="input-with-icon-textfield"
+                  label="TextField"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <BiPlusCircle />
+                      </InputAdornment>
+                    ),
+                  }}
+                  variant="standard"
+                />
+                <Box sx={{ display: "flex", alignItems: "flex-end" }}>
+                  <BiPlusCircle />
+                  <TextField
+                    id="input-with-sx"
+                    label="With sx"
+                    variant="standard"
+                  />
+                </Box>
+              </Box>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button>Post</Button>
+          </CardFooter>
+        </Card>
+      </TabsContent>
+    </Tabs>
+  </div>
   );
 }
-
-export default function NavTabs() {
-  const [value, setValue] = React.useState(0);
-
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    // event.type can be equal to focus with selectionFollowsFocus.
-    if (
-      event.type !== "click" ||
-      (event.type === "click" &&
-        samePageLinkNavigation(
-          event as React.MouseEvent<HTMLAnchorElement, MouseEvent>
-        ))
-    ) {
-      setValue(newValue);
-    }
-  };
-
-  return (
-    <div className="max-w-2xl pt-5 bg-zinc-400">
-      <h3 className="text-lg text-black pl-16 border-b-slate-400 border-solid">Create a post</h3>
-      <Box sx={{ width: "100%" }} className="pl-16">
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          aria-label="nav tabs example"
-        >
-          <LinkTab label="Proposal" href="/proposal" />
-          <LinkTab label="Poll" href="/poll" />
-          <LinkTab label="Announcement" href="/announcement" />
-        </Tabs>
-      </Box>
-    </div>
-  );
-}
+export default TabsDemo;

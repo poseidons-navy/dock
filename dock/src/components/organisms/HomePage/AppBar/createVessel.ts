@@ -1,64 +1,93 @@
+import * as borsh from '@project-serum/borsh'
+import BN from 'bn.js';
 
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { Keypair, PublicKey, Transaction, SystemProgram, TransactionInstruction } from "@solana/web3.js";
-const { connection } = useConnection();
-const { publicKey, sendTransaction } = useWallet();
-export default function createVessel() {
+export class Vessel {
+    id: string;
+    creator_id: string;
+    name: string;
+    description: string;
+    amount_token: number;
+    due: string;
+    address: string;
+    chaos_message_id: string;
+    post_type: string;
+    user_type: string;
+    user_id: string;
+    chaos_participant_id: string;
+    post_id: string;
+    vessel_id: string;
+    chaos_channel_id: string;
 
 
-    let toProgramId = new PublicKey("AbrLPc6a5SyWA32E4BMsq31WodUhimWX8J9xGCJScGYz")
-    const VESSEL_REVIEW_PROGRAM_ID = "AbrLPc6a5SyWA32E4BMsq31WodUhimWX8J9xGCJScGYz"
-    if (!publicKey) {
 
-        alert('Please connect your wallet!')
 
-        return;
+    constructor(
+        id: string,
+        name: string,
+        description: string,
+        amount_token: number,
+        address: string,
+
+        user_type: string,
+        user_id: string,
+        chaos_participant_id: string,
+        vessel_id: string,
+        creator_id: string,
+        chaos_channel_id: string,
+        post_type: string,
+        chaos_message_id: string,
+        post_id: string,
+        due: string,
+
+
+    ) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.amount_token = amount_token;
+        this.address = address;
+
+        this.user_type = user_type;
+        this.user_id = user_id;
+        this.chaos_participant_id = chaos_participant_id;
+        this.vessel_id = vessel_id;
+        this.creator_id = creator_id;
+        this.chaos_channel_id = chaos_channel_id;
+        this.post_type = post_type;
+        this.chaos_message_id = chaos_message_id;
+        this.post_id = post_id;
+        this.due = due;
 
     }
-    const [pda] = PublicKey.findProgramAddressSync(
+    borshInstructionSchema = borsh.struct([
 
-        [publicKey.toBuffer(), new TextEncoder().encode(vesselId)],
+        borsh.u8('variant'),
+        borsh.str('name'),
+        borsh.str('id'),
+        borsh.str('description'),
+        borsh.str('amount_token'),
+        borsh.str('address'),
+        borsh.str('user_type'),
+        borsh.str('user_id'),
+        borsh.str('chaos_participant_id'),
+        borsh.str('vessel_id'),
+        borsh.str('creator_id'),
+        borsh.str('chaos_channel_id'),
+        borsh.str('post_type'),
+        borsh.str('chaos_message_id'),
+        borsh.str('post_id'),
+        borsh.str('due'),
 
-        new PublicKey(VESSEL_REVIEW_PROGRAM_ID)
 
-    )
-    const accounts = [
-        {
-            publicKey: publicKey,
-            isSigner: true,
-            isWritable: true,
-        },
-        {
-            publicKey: ownerPublicKey,// key of the owner of the vessel
-            isSigner: false,
-            isWritable: true,
-        },
-        {
-            publicKey: pda, // Replace with the actual public key of the PDA account
-            isSigner: false, // Update based on your Rust code logic
-            isWritable: true, // Update based on your Rust code logic
-        },
-        {
-            publicKey: SystemProgram.programId, // Replace with the actual public key of the system program account
-            isSigner: false, // Update based on your Rust code logic
-            isWritable: true, // Update based on your Rust code logic
-        },
-    ];
-    const instruction = new TransactionInstruction({
-        accounts: accounts,
-        programId: toProgramId
-    })
-    const transaction = new Transaction()
-    transaction.add(instruction)
-    try {
-        let txid = await sendTransaction(transaction, connection)
-        console.log("create member worked")
+    ])
+
+    serialize(): Buffer {
+
+        const buffer = Buffer.alloc(10000)
+
+        this.borshInstructionSchema.encode({ variant: 0, ...this }, buffer)
+        console.log("this almost")
+        return buffer.subarray(0, this.borshInstructionSchema.getSpan(buffer))
+
     }
-    catch (e) {
-        console.log("Create Member failed", JSON.stringify(e))
-    }
-
-
-
-
 }

@@ -1,13 +1,56 @@
 
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { Keypair, PublicKey, Transaction, SystemProgram, TransactionInstruction } from "@solana/web3.js";
+import borsh from '@project-serum/borsh'
 const { connection } = useConnection();
 const { publicKey, sendTransaction } = useWallet();
-export default function createMember() {
+
+export class Member {
+    vessel_id: string;
+    user_type: string;
+    user_id: string;
+    chaos_participant_id: string;
 
 
-    let toProgramId = new PublicKey("AbrLPc6a5SyWA32E4BMsq31WodUhimWX8J9xGCJScGYz")
-    const VESSEL_REVIEW_PROGRAM_ID = "AbrLPc6a5SyWA32E4BMsq31WodUhimWX8J9xGCJScGYz"
+    constructor(user_id: string,
+        vessel_id: string,
+        user_type: string,
+        chaos_participant_id: string) {
+        this.user_type = user_type;
+        this.vessel_id = vessel_id;
+        this.user_id = user_id;
+        this.chaos_participant_id = chaos_participant_id;
+    }
+    borshInstructionSchema = borsh.struct([
+
+        borsh.u8('variant'),
+
+        borsh.str('user_id'),
+
+        borsh.str('vessel_id'),
+
+        borsh.str('user_type'),
+        borsh.str('chaos_participant_id'),
+        
+    ])
+
+    serialize(): Buffer {
+
+        const buffer = Buffer.alloc(1000)
+
+        this.borshInstructionSchema.encode({ ...this, variant: 11 }, buffer)
+
+        return buffer.slice(11, this.borshInstructionSchema.getSpan(buffer))
+
+    }
+
+
+}
+export default async function createVessel(member: Member, vesselId: string, owner_id: string) {
+
+    let ownerId = new PublicKey(owner_id)
+    const VESSEL_REVIEW_PROGRAM_ID = "H56RznPRkcE2Tg7YGyntWy38rrHZTz4Sqzu2sT9NaKnL"
+    const toProgramId = new PublicKey(VESSEL_REVIEW_PROGRAM_ID)
     if (!publicKey) {
 
         alert('Please connect your wallet!')
@@ -15,38 +58,41 @@ export default function createMember() {
         return;
 
     }
+    const buffer = member.serialize()
     const [pda] = PublicKey.findProgramAddressSync(
 
-        [publicKey.toBuffer(), new TextEncoder().encode(vesselId)],
+        [publicKey.toBuffer(), Buffer.from(vesselId)],
 
         new PublicKey(VESSEL_REVIEW_PROGRAM_ID)
 
     )
     const accounts = [
         {
-            publicKey: publicKey,
+            pubkey: publicKey,
             isSigner: true,
             isWritable: true,
         },
         {
-            publicKey: ownerPublicKey,// key of the owner of the vessel
-            isSigner: false,
+            pubkey: ownerId,
+            isSigner: true,
             isWritable: true,
         },
+
         {
-            publicKey: pda, // Replace with the actual public key of the PDA account
+            pubkey: pda, // Replace with the actual public key of the PDA account
             isSigner: false, // Update based on your Rust code logic
             isWritable: true, // Update based on your Rust code logic
         },
         {
-            publicKey: SystemProgram.programId, // Replace with the actual public key of the system program account
+            pubkey: SystemProgram.programId, // Replace with the actual public key of the system program account
             isSigner: false, // Update based on your Rust code logic
             isWritable: true, // Update based on your Rust code logic
         },
     ];
     const instruction = new TransactionInstruction({
-        accounts: accounts,
-        programId: toProgramId
+        keys: accounts,
+        programId: toProgramId,
+        data: buffer
     })
     const transaction = new Transaction()
     transaction.add(instruction)

@@ -11,16 +11,18 @@ import {
   } from "@/components/ui/sheet";
   import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
 import { Label } from "@/components/ui/label";
 
 type myProps = {
-    handleSubmit:(event: any) => Promise<void>;
+    handleSubmit:(event: any) => void;
+    name: string,
+    description: string
+    setName: (event: any)=>void,
+    setDescription: (event: any)=>void
     }
 
-    const Popup: React.FC<myProps> = ({ handleSubmit }) => {
-    const [name, setName] = useState("");
-    const [description, setDescription] = useState("");
+    const Popup: React.FC<myProps> = ({ handleSubmit, name, description, setName, setDescription }) => {
+   
   
     return (  
 

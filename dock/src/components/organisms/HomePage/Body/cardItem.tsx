@@ -1,5 +1,5 @@
 "use client";
-
+import Link from 'next/link'
 import React from "react";
 import { Button } from "../../../ui/button";
 
@@ -12,7 +12,9 @@ function CardItem() {
       <div className="flex flex-col items-start justift-start px-2 py-2 w-full space-y-2">
         <span>Discuss all things SpongeBob</span>
 
+        <Link href='/Posts' legacyBehavior= {true}>
         <Button size="sm">Request to Join</Button>
+        </Link>
       </div>
     </div>
   );

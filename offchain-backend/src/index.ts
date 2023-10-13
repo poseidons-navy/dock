@@ -8,9 +8,10 @@ import {generate_unique_id} from "./lib/functions";
 import _ from "lodash"
 import {z} from "zod";
 import dayjs from "dayjs";
+import cors from '@koa/cors'
 
 const app = new Koa()
-
+app.use(cors())
 app.use(KoaLogger())
 app.use(koaBody())
 
@@ -28,9 +29,9 @@ router.get("ping", "/ping", (ctx)=>{
 router.post("create-new-user", "/users", async (ctx)=> {
 
     const { body } = ctx.request
-
+   
     const parsed = schemas.User.safeParse(body)
-
+   
     if(!parsed.success) {
         ctx.response.status = 400
         ctx.response.body = "INVALID BODY"
@@ -41,8 +42,16 @@ router.post("create-new-user", "/users", async (ctx)=> {
         data: {
              ...parsed.data,
             id: generate_unique_id("usr")
+
+
+
+
+
+
+
         }
     })
+
 
     ctx.response.body = new_user
     ctx.response.status = 201

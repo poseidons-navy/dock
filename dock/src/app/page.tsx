@@ -1,7 +1,9 @@
-import HomePage from "@/components/organisms/HomePage/HomePage";
+'use client'
+import Card from "@/components/organisms/HomePage/Body/card";
+
 function App() {
     return ( <div>
-        <HomePage/>
+        <Card/>
     </div>);
 }
 

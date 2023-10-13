@@ -1,9 +1,13 @@
+"use client"
 import { Input } from "@/components/ui/input";
+import  Link  from "next/link";
 
 function CreatePost() {
   return (
     <div>
-      <Input placeholder="Create Post" className="w-full" />
+      <Link href="/Messages">
+      <Input placeholder="Create Proposal" className="w-full mt-2" />
+      </Link>
     </div>
   );
 }

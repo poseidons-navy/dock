@@ -17,15 +17,78 @@ enum PostType {
   invite
 }
 
+enum MembershipRoles {
+  member
+  founder
+  creator
+  specialist
+  invitee
+  invited_founder
+}
+
 model User {
-  address       String @id // user address on the blockchain
-  chaos_user_id String @unique
+  id              String       @id
+  address         String       @unique // user address on the blockchain
+  chaos_user_id   String       @unique
+  created_vessels Vessel[]
+  memberships     Membership[]
+  posts           Post[]
 }
 
-model PostMeta {
-  id   String   @id // message id on chaos
-  type PostType @default(content)
+model Vessel {
+  id                String       @id // vessel id
+  name              String?
+  description       String?
+  chaose_channel_id String       @unique
+  categories        String[]
+  creator           User         @relation(references: [id], fields: [creator_id])
+  creator_id        String
+  members           Membership[]
 }
 
-model VesselMeta {
+model Membership {
+  id                   String          @id // membership id
+  user_id              String
+  user                 User            @relation(references: [id], fields: [user_id])
+  chaos_participant_id String          @unique // chaos participant id
+  role                 MembershipRoles @default(invitee)
+  vessel_id            String
+  vessel               Vessel          @relation(references: [id], fields: [vessel_id])
+}
+
+model Post {
+  id               String      @id // message id on chaos
+  user_id          String
+  user             User        @relation(references: [id], fields: [user_id])
+  type             PostType    @default(content)
+  chaos_message_id String
+  invitation       Invitation?
+  content          Content?
+  poll             Poll?
+}
+
+model Invitation {
+  id      String   @id // invitation id
+  address String // the address of the user to be invited
+  due     DateTime // date when the results will be anounced
+  for     Int // the number of votes for
+  against Int // the number of vots agains
+  post_id String   @unique // the post id @unique
+  post    Post?    @relation(references: [id], fields: [post_id])
+}
+
+model Content {
+  id        String @id //
+  upvotes   Int    @default(0)
+  downvotes Int    @default(0)
+  post_id   String @unique
+  post      Post?  @relation(references: [id], fields: [post_id])
+}
+
+model Poll {
+  id      String @id
+  for     Int    @default(0)
+  against Int    @default(0)
+  post_id String @unique
+  post    Post?  @relation(references: [id], fields: [post_id])
 }

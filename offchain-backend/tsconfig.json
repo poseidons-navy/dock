@@ -12,7 +12,7 @@
   },
   "exclude": ["node_modules"],
   "include": ["**/*.ts", "mykoa.d.ts", "env.d.ts"],
-  "files": ["env.d.ts","./mykoa.d.ts", "./src/index.ts"],
+  "files": ["./src/index.ts"],
   "ts-node": {
     "experimentalSpecifierResolution": "node"
   }

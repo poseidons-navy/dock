@@ -1,3 +1,7 @@
+//! Program entrypoint
+
+#![cfg(not(feature = "no-entrypoint"))]
+
 use solana_program::{
     account_info::AccountInfo,
     pubkey::Pubkey,
@@ -20,7 +24,8 @@ use crate::processor::{
     request_invite,
     add_member,
     create_content,
-    create_poll
+    create_poll,
+    vote_on_post
 };
 
 
@@ -55,6 +60,9 @@ pub fn process_instruction(
         VesselInstruction::CreatePoll { vessel_id, id, post_id, user_id, chaos_message_id } => {
             create_poll::create_poll(post_id, user_id, vessel_id, id, chaos_message_id, accounts, program_id)
         },
+        VesselInstruction::VoteOnPost { vessel_id, id, post_type, interaction_type } => {
+            vote_on_post::vote_on_post(post_type, vessel_id, interaction_type, id, accounts, program_id)
+        }
         // VesselInstruction::InviteFoundingMember { id } => {
         //     invite_founding_member::invite_founding_member(program_id, accounts, id)
         // },

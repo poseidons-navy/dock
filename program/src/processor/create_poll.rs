@@ -130,7 +130,8 @@ mod tests {
             for_invite: 0,
             against_invite: 0,
             upvotes: 0,
-            downvotes: 0
+            downvotes: 0,
+            interaction_type: String::from("")
         };
         // Create vessel
         let mut sink = vec![0];

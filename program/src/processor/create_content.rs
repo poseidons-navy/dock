@@ -130,7 +130,8 @@ mod tests {
             for_invite: 0,
             against_invite: 0,
             upvotes: 0,
-            downvotes: 0
+            downvotes: 0,
+            interaction_type: String::from("")
         };
         // Create vessel
         let mut sink = vec![0];
@@ -164,7 +165,7 @@ mod tests {
 
         banks_client.process_transaction(transaction).await.unwrap();
 
-        // Create a invitation for the vessel
+        // Create a content for the vessel
         let mut sink2 = vec![12];
         instruction_data.serialize( &mut sink2).unwrap();
         let mut transaction2 = Transaction::new_with_payer(

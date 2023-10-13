@@ -72,6 +72,12 @@ pub enum VesselInstruction {
         post_id: String,
         user_id: String,
         chaos_message_id: String
+    },
+    VoteOnPost{
+        vessel_id: String,
+        id: String,
+        post_type: String,
+        interaction_type: String
     }
     // InviteSpecialist {
     //     id: u64,
@@ -105,7 +111,8 @@ pub struct VesselInstructionStruct {
     pub for_invite: u64,
     pub against_invite: u64,
     pub upvotes: u64,
-    pub downvotes: u64
+    pub downvotes: u64,
+    pub interaction_type: String
 }
 
 impl VesselInstruction {
@@ -133,6 +140,7 @@ impl VesselInstruction {
             12 => Self::CreateContent { vessel_id: payload.vessel_id, id: payload.id, post_id: payload.post_id, user_id: payload.user_id, chaos_message_id: payload.chaos_message_id },
             13 => Self::CreateInvitation { vessel_id: payload.vessel_id, id: payload.id, post_id: payload.post_id, due: payload.due, user_id: payload.user_id, chaos_message_id: payload.chaos_message_id },
             14 => Self::CreatePoll { vessel_id: payload.vessel_id, id: payload.id, post_id: payload.post_id, user_id: payload.user_id, chaos_message_id: payload.chaos_message_id },
+            15 => Self::VoteOnPost { vessel_id: payload.vessel_id, id: payload.id, post_type: payload.post_type, interaction_type: payload.interaction_type },
             _ => return Err(ProgramError::InvalidInstructionData)
         })
     }

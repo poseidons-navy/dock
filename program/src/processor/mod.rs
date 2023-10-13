@@ -14,3 +14,4 @@ pub mod invite_specialist_member;
 pub mod create_content;
 pub mod create_invitation;
 pub mod create_poll;
+pub mod vote_on_post;

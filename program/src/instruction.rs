@@ -86,32 +86,51 @@ pub enum VesselInstruction {
 }
 
 // Define data in instruction
+// #[derive(BorshDeserialize, BorshSerialize)]
+// pub struct VesselInstructionStruct {
+//     pub id: String,
+//     pub name: String,
+//     pub description: String,
+//     pub amount_token: u64,
+//     pub address: String,
+//     pub title: String,
+//     pub voted_member: String,
+//     pub member: String,
+//     pub vote: bool,
+//     pub vessel_address: String,
+//     pub user_type: String,
+//     pub user_id: String,
+//     pub chaos_participant_id: String,
+//     pub vessel_id: String,
+//     pub creator_id: String,
+//     pub chaos_channel_id: String,
+//     pub post_type: String,
+//     pub chaos_message_id: String,
+//     pub post_id: String,
+//     pub due: String,
+//     pub for_invite: u64,
+//     pub against_invite: u64,
+//     pub upvotes: u64,
+//     pub downvotes: u64,
+//     pub interaction_type: String
+// }
+
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct VesselInstructionStruct {
     pub id: String,
+    pub creator_id: String,
     pub name: String,
     pub description: String,
+    pub chaos_channel_id: String,
     pub amount_token: u64,
-    pub address: String,
-    pub title: String,
-    pub voted_member: String,
-    pub member: String,
-    pub vote: bool,
-    pub vessel_address: String,
     pub user_type: String,
     pub user_id: String,
     pub chaos_participant_id: String,
     pub vessel_id: String,
-    pub creator_id: String,
-    pub chaos_channel_id: String,
-    pub post_type: String,
-    pub chaos_message_id: String,
     pub post_id: String,
+    pub chaos_message_id: String,
     pub due: String,
-    pub for_invite: u64,
-    pub against_invite: u64,
-    pub upvotes: u64,
-    pub downvotes: u64,
+    pub post_type: String,
     pub interaction_type: String
 }
 

@@ -72,6 +72,20 @@ pub fn add_member(
     msg!("Adding New Member");
     account_data.members.push(new_member);
 
+    msg!("Marking Vessel As Created If There Are 3 Founders");
+    if account_data.is_created == false {
+        let mut founder = 0;
+        for x in account_data.members.iter() {
+            if x.user_type == String::from("founder") {
+                founder += 1
+            }
+        }
+
+        if founder >= 3 {
+            account_data.is_created = true
+        }
+    }
+
     // Add lamports if needed
     msg!("Calculating Rent Needed!");
     let rent = Rent::get()?;
@@ -127,12 +141,6 @@ mod tests {
             name: String::from("Vessel Name"),
             description: String::from("Some Vessel"),
             amount_token: 64,
-            address: String::from(""),
-            title: String::from(""),
-            voted_member: String::from(""),
-            member: String::from(""),
-            vote: true,
-            vessel_address: String::from(""),
             user_type: String::from("member"),
             user_id: String::from("user#2"),
             chaos_participant_id: String::from("chaos_participant#1"),
@@ -143,10 +151,6 @@ mod tests {
             post_type: String::from(""),
             chaos_message_id: String::from(""),
             due: String::from(""),
-            for_invite: 0,
-            against_invite: 0,
-            upvotes: 0,
-            downvotes: 0,
             interaction_type: String::from("")
         };
         // Create vessel

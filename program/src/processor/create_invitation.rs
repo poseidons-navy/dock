@@ -114,12 +114,6 @@ mod tests {
             name: String::from("Vessel Name"),
             description: String::from("Some Vessel"),
             amount_token: 64,
-            address: String::from(""),
-            title: String::from(""),
-            voted_member: String::from(""),
-            member: String::from(""),
-            vote: true,
-            vessel_address: String::from(""),
             user_type: String::from("member"),
             user_id: String::from("user#2"),
             chaos_participant_id: String::from("chaos_participant#1"),
@@ -130,10 +124,6 @@ mod tests {
             post_type: String::from("invitation"),
             chaos_message_id: String::from("sfafd"),
             due: String::from("13-10-2023"),
-            for_invite: 0,
-            against_invite: 0,
-            upvotes: 0,
-            downvotes: 0,
             interaction_type: String::from("")
         };
         // Create vessel

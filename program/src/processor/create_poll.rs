@@ -54,6 +54,8 @@ pub fn create_poll(
         post_id,
         for_invite,
         against_invite,
+        result: String::from(""),
+        voted_members: Vec::new()
     };
     account_data.polls.push(new_poll);
 

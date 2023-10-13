@@ -8,8 +8,8 @@ use solana_program::{
     msg
 };
 
-use crate::{processor::create_vessel, state::Invitation};
-use crate::state::Vessel;
+use crate::processor::create_vessel;
+use crate::state::{Vessel, Member};
 use borsh::BorshSerialize;
 use chrono::{DateTime, Local};
 
@@ -46,6 +46,7 @@ pub fn vote_on_post(
     msg!("Deserializing Account data");
     // Deserialize it
     let mut account_data = crate::processor::create_vessel::my_try_from_slice_unchecked::<Vessel>(&pda_account.data.borrow()).unwrap();
+    let old_account_size = crate::processor::create_vessel::get_vessel_size(&account_data);
 
     if post_type == String::from("content") {
         msg!("{} on content", interaction_type);
@@ -65,6 +66,19 @@ pub fn vote_on_post(
         if found == false {
             msg!("Content Not Found!");
             return Err(ProgramError::InvalidArgument);
+        }
+
+        // Look for member from list of members in DAO
+        found = false;
+        for x in account_data.members.iter() {
+            if x.key == member_account.key.to_bytes() {
+                found = true;
+            }
+        }
+
+        if found == false {
+            msg!("Member is not part of the vessel!");
+            return Err(ProgramError::InvalidAccountData);
         }
 
         // Edit content
@@ -93,11 +107,58 @@ pub fn vote_on_post(
             return Err(ProgramError::InvalidArgument);
         }
 
+        // If result of poll has already been determined disable voting
+        if account_data.polls[position].result != String::from("") {
+            msg!("Poll result has already been determined");
+            return Err(ProgramError::InvalidInstructionData);
+        }
+
+        // Check if member has already voted
+        found = false;
+        for x in account_data.polls[position].voted_members.iter() {
+            if x.key == member_account.key.to_bytes() {
+                found = true;
+            }
+        }
+
+        if found == true {
+            msg!("Member has already voted!");
+            return Err(ProgramError::InvalidAccountData);
+        }
+
+        // Look for member from list of members in DAO
+        found = false;
+        let mut member_position = 0;
+        for (i, x) in account_data.members.iter().enumerate() {
+            if x.key == member_account.key.to_bytes() {
+                found = true;
+                member_position = i;
+            }
+        }
+
+        if found == false {
+            msg!("Member is not part of the vessel!");
+            return Err(ProgramError::InvalidAccountData);
+        }
+
+        // Add member to list of members who voted on poll
+        let member = &account_data.members[member_position];
+        account_data.polls[position].voted_members.push(member.clone());
+
         // Edit content
         if interaction_type == String::from("up") {
             account_data.polls[position].for_invite += 1
         } else {
             account_data.polls[position].against_invite += 1
+        }
+
+        // If members who voted is greater than 60% get result
+        if account_data.polls[position].voted_members.len() as f32 >= account_data.members.len() as f32 * 0.6 {
+            if account_data.polls[position].for_invite > account_data.polls[position].against_invite {
+                account_data.polls[position].result = String::from("for")
+            } else {
+                account_data.polls[position].result = String::from("against")
+            }
         }
     } else {
         msg!("{} on invitation", interaction_type);
@@ -129,6 +190,20 @@ pub fn vote_on_post(
             return Err(ProgramError::InvalidInstructionData);
         }
 
+        // Look for member from list of members in DAO
+        found = false;
+        for x in account_data.members.iter() {
+            if x.key == member_account.key.to_bytes() {
+                found = true;
+            }
+        }
+
+        if found == false {
+            msg!("Member is not part of the vessel!");
+            return Err(ProgramError::InvalidAccountData);
+        }
+
+
         // Edit content
         if interaction_type == String::from("up") {
             account_data.invites[position].for_invite += 1
@@ -137,55 +212,41 @@ pub fn vote_on_post(
         }
     }
 
+    let new_account_size = crate::processor::create_vessel::get_vessel_size(&account_data);
+    if new_account_size > old_account_size {
+        // Add lamports if needed
+        msg!("Calculating Rent Needed!");
+        let rent = Rent::get()?;
+        let new_account_size = create_vessel::get_vessel_size(&account_data);
+        let new_rent_lamports = rent.minimum_balance(new_account_size);
+
+        if pda_account.lamports() < new_rent_lamports {
+            msg!("Charging Member for entry");
+            // Charge member for lamports
+            let lamports_to_be_paid = new_rent_lamports - pda_account.lamports();
+            if member_account.lamports() < lamports_to_be_paid {
+                return Err(ProgramError::InsufficientFunds);
+            }
+
+            // Fund account
+            msg!("Running charge command");
+            create_vessel::invoke_signed_transaction(
+                &system_instruction::transfer(member_account.key, pda_account.key, lamports_to_be_paid), 
+                &[owner.clone(), system_program_account.clone(), member_account.clone(), pda_account.clone()], 
+                owner.key, 
+                &vessel_id, 
+                bump_seed
+            )?;
+
+            // Increase size of account
+            pda_account.realloc(new_account_size, false)?;
+        }
+    }
+
     // Serialize
     msg!("Serializing Data to PDA");
     account_data.serialize(&mut &mut pda_account.data.borrow_mut()[..])?;
 
-    // msg!("Adding poll to account");
-    // account_data.add_post(&post_id, &user_id, &member_account.key.to_bytes(), &post_type, &chaos_message_id);
-
-    // msg!("Add Invitation to account");
-    // let new_invitation = Invitation {
-    //     id,
-    //     post_id,
-    //     due,
-    //     for_invite,
-    //     against_invite,
-    //     user_to_be_invited: member_account.key.to_bytes()
-    // };
-    // account_data.invites.push(new_invitation);
-
-    // // Add lamports if needed
-    // msg!("Calculating Rent Needed!");
-    // let rent = Rent::get()?;
-    // let new_account_size = create_vessel::get_vessel_size(&account_data);
-    // let new_rent_lamports = rent.minimum_balance(new_account_size);
-
-    // if pda_account.lamports() < new_rent_lamports {
-    //     msg!("Charging Member for entry");
-    //     // Charge member for lamports
-    //     let lamports_to_be_paid = new_rent_lamports - pda_account.lamports();
-    //     if member_account.lamports() < lamports_to_be_paid {
-    //         return Err(ProgramError::InsufficientFunds);
-    //     }
-
-    //     // Fund account
-    //     msg!("Running charge command");
-    //     create_vessel::invoke_signed_transaction(
-    //         &system_instruction::transfer(member_account.key, pda_account.key, lamports_to_be_paid), 
-    //         &[owner.clone(), system_program_account.clone(), member_account.clone(), pda_account.clone()], 
-    //         owner.key, 
-    //         &vessel_id, 
-    //         bump_seed
-    //     )?;
-    // }
-
-    // // Increase size of account
-    // pda_account.realloc(new_account_size, false)?;
-
-    // // Save changes in account
-    // msg!("Serializing Data to PDA");
-    // account_data.serialize(&mut &mut pda_account.data.borrow_mut()[..])?;
     Ok(())
 }
 
@@ -263,8 +324,8 @@ mod tests {
 
         banks_client.process_transaction(transaction).await.unwrap();
 
-        // Create a content for the vessel
-        let mut sink2 = vec![12];
+        // Create a member for the vessel
+        let mut sink2 = vec![11];
         instruction_data.serialize( &mut sink2).unwrap();
         let mut transaction2 = Transaction::new_with_payer(
             &[Instruction {
@@ -284,8 +345,8 @@ mod tests {
 
         banks_client.process_transaction(transaction2).await.unwrap();
 
-        // Upvote created content
-        let mut sink3 = vec![15];
+        // Create a content for the vessel
+        let mut sink3 = vec![12];
         instruction_data.serialize( &mut sink3).unwrap();
         let mut transaction3 = Transaction::new_with_payer(
             &[Instruction {
@@ -304,6 +365,27 @@ mod tests {
         transaction3.sign(&[&payer, &test_account], recent_blockhash);
 
         banks_client.process_transaction(transaction3).await.unwrap();
+
+        // Upvote created content
+        let mut sink4 = vec![15];
+        instruction_data.serialize( &mut sink4).unwrap();
+        let mut transaction4 = Transaction::new_with_payer(
+            &[Instruction {
+                program_id,
+                accounts: vec![
+                    AccountMeta::new(payer.pubkey(), true),
+                    AccountMeta::new(payer.pubkey(), true),
+                    AccountMeta::new(test_account.pubkey(), true),
+                    AccountMeta::new(system_program::id(), false)
+                ],
+                data: sink4
+            }],
+            Some(&payer.pubkey()),
+        );
+
+        transaction4.sign(&[&payer, &test_account], recent_blockhash);
+
+        banks_client.process_transaction(transaction4).await.unwrap();
 
         // Get created account
         // Test if any of the created members has the id of the added member
@@ -394,8 +476,8 @@ mod tests {
 
         banks_client.process_transaction(transaction).await.unwrap();
 
-        // Create a poll for the vessel
-        let mut sink2 = vec![14];
+        // Create a member for the vessel
+        let mut sink2 = vec![11];
         instruction_data.serialize( &mut sink2).unwrap();
         let mut transaction2 = Transaction::new_with_payer(
             &[Instruction {
@@ -415,8 +497,8 @@ mod tests {
 
         banks_client.process_transaction(transaction2).await.unwrap();
 
-        // Downvote created poll
-        let mut sink3 = vec![15];
+        // Create a poll for the vessel
+        let mut sink3 = vec![14];
         instruction_data.serialize( &mut sink3).unwrap();
         let mut transaction3 = Transaction::new_with_payer(
             &[Instruction {
@@ -435,6 +517,27 @@ mod tests {
         transaction3.sign(&[&payer, &test_account], recent_blockhash);
 
         banks_client.process_transaction(transaction3).await.unwrap();
+
+        // Downvote created poll
+        let mut sink4 = vec![15];
+        instruction_data.serialize( &mut sink4).unwrap();
+        let mut transaction4 = Transaction::new_with_payer(
+            &[Instruction {
+                program_id,
+                accounts: vec![
+                    AccountMeta::new(payer.pubkey(), true),
+                    AccountMeta::new(payer.pubkey(), true),
+                    AccountMeta::new(test_account.pubkey(), true),
+                    AccountMeta::new(system_program::id(), false)
+                ],
+                data: sink4
+            }],
+            Some(&payer.pubkey()),
+        );
+
+        transaction4.sign(&[&payer, &test_account], recent_blockhash);
+
+        banks_client.process_transaction(transaction4).await.unwrap();
 
         // Get created account
         // Test if any of the created members has the id of the added member
@@ -458,6 +561,8 @@ mod tests {
 
                 assert_eq!(found, true, "Poll with id {} was not found", instruction_data.id);
                 assert_eq!(vessel.polls[position].against_invite, 1, "Poll was not voted against, number of against votes is {}", vessel.polls[position].against_invite);
+                assert_eq!(vessel.polls[position].voted_members.len(), 1, "Member was not marked as voted, number of voted members is {}", vessel.polls[position].voted_members.len());
+                assert_eq!(vessel.polls[position].result, String::from("against"), "Poll results not update well, number of against votes is {}, number of for votes is {} and result is {}", vessel.polls[position].against_invite, vessel.polls[position].for_invite, vessel.polls[position].result);
             },
             Err(_) => assert_eq!(false, true),
         }
@@ -525,8 +630,8 @@ mod tests {
 
         banks_client.process_transaction(transaction).await.unwrap();
 
-        // Create a invitation for the vessel
-        let mut sink2 = vec![13];
+        // Create a member for the vessel
+        let mut sink2 = vec![11];
         instruction_data.serialize( &mut sink2).unwrap();
         let mut transaction2 = Transaction::new_with_payer(
             &[Instruction {
@@ -546,8 +651,8 @@ mod tests {
 
         banks_client.process_transaction(transaction2).await.unwrap();
 
-        // Downvote created invitation
-        let mut sink3 = vec![15];
+        // Create a invitation for the vessel
+        let mut sink3 = vec![13];
         instruction_data.serialize( &mut sink3).unwrap();
         let mut transaction3 = Transaction::new_with_payer(
             &[Instruction {
@@ -566,6 +671,27 @@ mod tests {
         transaction3.sign(&[&payer, &test_account], recent_blockhash);
 
         banks_client.process_transaction(transaction3).await.unwrap();
+
+        // Downvote created invitation
+        let mut sink4 = vec![15];
+        instruction_data.serialize( &mut sink4).unwrap();
+        let mut transaction4 = Transaction::new_with_payer(
+            &[Instruction {
+                program_id,
+                accounts: vec![
+                    AccountMeta::new(payer.pubkey(), true),
+                    AccountMeta::new(payer.pubkey(), true),
+                    AccountMeta::new(test_account.pubkey(), true),
+                    AccountMeta::new(system_program::id(), false)
+                ],
+                data: sink4
+            }],
+            Some(&payer.pubkey()),
+        );
+
+        transaction4.sign(&[&payer, &test_account], recent_blockhash);
+
+        banks_client.process_transaction(transaction4).await.unwrap();
 
         // Get created account
         // Test if any of the created members has the id of the added member

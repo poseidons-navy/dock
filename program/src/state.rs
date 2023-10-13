@@ -74,11 +74,14 @@ pub struct Poll {
     pub post_id: String,
     pub for_invite: u64,
     pub against_invite: u64,
+    pub result: String,
+    pub voted_members: Vec<Member>
 }
 
 // Posts - count of interactions e.g likes, comments; member who created it
 
 #[derive(BorshDeserialize, BorshSerialize)]
+#[derive(Clone)]
 pub struct Member {
     pub key: [u8; 32],
     pub owner_key: [u8; 32],

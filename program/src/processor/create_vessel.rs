@@ -52,8 +52,15 @@ pub fn get_vessel_size(vessel: &Vessel) -> usize {
     let mut poll_size = 0;
     let for_poll = 4;
     let against_poll = 4;
-    for u in vessel.polls.iter() {
-        poll_size += for_poll + against_poll + 4 + u.id.len() + 4 + u.post_id.len()
+    for  u in vessel.polls.iter() {
+        // Calculate size of members who voted
+        const PUBKEY_SIZE: usize = 32;
+        let mut member_size = 0;
+
+        for x in u.voted_members.iter() {
+            member_size += (2 * PUBKEY_SIZE) + (4 + x.user_id.len()) + (4 + x.user_type.len() + 4 + x.chaos_participant_id.len())
+        }
+        poll_size += for_poll + against_poll + 4 + u.id.len() + 4 + u.post_id.len() + 4 + u.result.len() + member_size
     }
 
     let size = is_initialized + (4 + vessel.name.len()) + (4 + vessel.description.len()) + amount_token + member_size + is_created + category_size + (4 + vessel.id.len()) + (4 + vessel.creator_id.len()) + PUBKEY_SIZE + (4 + vessel.chaos_channel_id.len()) + content_size + post_size + invitation_size + poll_size;

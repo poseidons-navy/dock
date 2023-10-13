@@ -9,7 +9,7 @@ use solana_program::{
 };
 
 use crate::processor::create_vessel;
-use crate::state::{Vessel, Member};
+use crate::state::Vessel;
 use borsh::BorshSerialize;
 use chrono::{DateTime, Local};
 

@@ -12,16 +12,6 @@ use solana_program::{
 use crate::{instruction::VesselInstruction, processor::create_invitation};
 use crate::processor::{
     create_vessel,
-    // invite_founding_member,
-    invite_member,
-    award_community_token,
-    create_task,
-    create_specialist_vote,
-    vote_specialist,
-    vote_member_in,
-    vote_member_out,
-    get_vessels,
-    request_invite,
     add_member,
     create_content,
     create_poll,
@@ -63,41 +53,8 @@ pub fn process_instruction(
         VesselInstruction::VoteOnPost { vessel_id, id, post_type, interaction_type } => {
             vote_on_post::vote_on_post(post_type, vessel_id, interaction_type, id, accounts, program_id)
         }
-        // VesselInstruction::InviteFoundingMember { id } => {
-        //     invite_founding_member::invite_founding_member(program_id, accounts, id)
-        // },
-        VesselInstruction::InviteMember { address } => {
-            invite_member::invite_member(program_id, accounts, address)
-        },
-        VesselInstruction::AwardCommunityToken { address } => {
-            award_community_token::award_community_token(program_id, accounts, address)
-        },
-        VesselInstruction::CreateTask { title, description, amount_token } => {
-            create_task::create_task(program_id, accounts, title, description, amount_token)
-        },
-        VesselInstruction::CreateSpecialistVote { title, description } => {
-            create_specialist_vote::create_specialist_vote(program_id, accounts, title, description)
-        },
-        VesselInstruction::VoteSpecialist { voted_member } => {
-            vote_specialist::vote_specialist(program_id, accounts, voted_member)
-        },
-        VesselInstruction::VoteMemberIn { member, vote } => {
-            vote_member_in::vote_member_in(program_id, accounts, member, vote)
-        },
-        VesselInstruction::VoteMemberOut { member, vote } => {
-            vote_member_out::vote_member_out(program_id, accounts, member, vote)
-        },
-        VesselInstruction::GetVessels => {
-            get_vessels::get_vessels(program_id, accounts)
-        },
-        VesselInstruction::RequestInvite { member, vessel_address } => {
-            request_invite::request_invite(program_id, accounts, member, vessel_address)
-        },
         VesselInstruction::AddMember { user_type, user_id, chaos_participant_id, vessel_id } => {
             add_member::add_member(vessel_id, user_type, user_id, chaos_participant_id, accounts, program_id)
         }
-        // VesselInstruction::InviteSpecialist { id } => {
-        //     invite_specialist_member::invite_specialist(program_id, accounts, id)
-        // }
     }
 }

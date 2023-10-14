@@ -9,7 +9,7 @@ pub enum VesselInstruction {
         name: String,
         description: String,
         chaos_channel_id: String,
-        amount_token: u64,
+        amount_token: u32,
     },
     // InviteFoundingMember {
     //     id: u64,
@@ -122,7 +122,7 @@ pub struct VesselInstructionStruct {
     pub name: String,
     pub description: String,
     pub chaos_channel_id: String,
-    pub amount_token: u64,
+    pub amount_token: u32,
     pub user_type: String,
     pub user_id: String,
     pub chaos_participant_id: String,

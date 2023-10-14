@@ -6,7 +6,7 @@ pub struct Vessel {
     pub is_initialized: bool,
     pub name: String,
     pub description: String,
-    pub amount_token: u64,
+    pub amount_token: u32,
     pub members: Vec<Member>,
     pub is_created: bool,
     pub categories: Vec<String>,

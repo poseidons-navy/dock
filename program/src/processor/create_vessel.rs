@@ -110,7 +110,7 @@ pub fn create_vessel(
     description: String,
     chaos_channel_id: String,
     creator_id: String,
-    amount_token: u64,
+    amount_token: u32,
     program_id: &Pubkey,
     accounts: &[AccountInfo]
 ) -> ProgramResult {

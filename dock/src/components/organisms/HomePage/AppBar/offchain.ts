@@ -16,6 +16,34 @@ interface createvesselInterface
 
 }
 
+export interface MembershipReturn {
+    id: string,
+    user_id: string,
+    chaos_participant_id: string,
+    role: string,
+    vessel_id: string,
+    attached_account_data: string
+}
+
+export interface MembershipParams {
+    user_id: string,
+    chaos_participant_id:  string, // chaos participant id
+    role: string,
+    essel_id: string
+}
+
+export async function createMembership(url: string, params: MembershipParams): Promise<MembershipReturn> {
+    try {
+        let result = await axios.post(`${url}/users/memberships`, params);
+        return result.data;
+    } catch(err) {
+        console.log(err);
+        throw new Error("Could Not Create Membership")
+    }
+}
+
+export async function createPost(url: string, params: )
+
 
 export async function createUserOffchain(address: string, chaos_user_id: string): Promise<string>{
     const response = await axios.post<CreateUserInterface>("http://localhost:8089/users", {

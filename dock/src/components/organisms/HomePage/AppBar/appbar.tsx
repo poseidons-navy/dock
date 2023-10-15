@@ -114,6 +114,9 @@ function AppBar() {
       });
       console.log(vessel);
       createVessel(vessel);
+
+      // Add user as participant in chaos channel
+      chaosC
     } else {
       alert("Please connect wallet");
       return;

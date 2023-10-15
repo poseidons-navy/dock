@@ -42,9 +42,6 @@ export async function createMembership(url: string, params: MembershipParams): P
     }
 }
 
-export async function createPost(url: string, params: )
-
-
 export async function createUserOffchain(address: string, chaos_user_id: string): Promise<string>{
     const response = await axios.post<CreateUserInterface>("http://localhost:8089/users", {
         address: address,

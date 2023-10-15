@@ -1,11 +1,16 @@
 "use client";
 import { IconContext } from 'react-icons';
+import { useState } from 'react';
 import { LuArrowBigUp, LuArrowBigDown } from "react-icons/lu";
 import { PiArrowFatUpFill, PiArrowFatDownFill } from "react-icons/pi";
-import { FaRegComment } from "react-icons/fa";
-import { IoIosShareAlt } from "react-icons/io";
-import { useState, useEffect } from "react";
-import { ArrowDown, ArrowUp } from 'lucide-react';
+import {Vote} from './vote'
+import {
+  PublicKey,
+  Transaction,
+  SystemProgram,
+  TransactionInstruction,
+} from "@solana/web3.js";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
 interface PostProps {
   username: string,
@@ -16,51 +21,162 @@ interface PostProps {
 
 }
 
-function Posts(props: PostProps) {
-  const [voteType, setVoteType] = useState<"up"|"down"|"none">("none");
+function Post(props: PostProps) {
+  const [toggle, setToggle] = useState(0)
+  const { connection } = useConnection();
+  const { publicKey, sendTransaction } = useWallet();
+  const VESSEL_REVIEW_PROGRAM_ID =
+    "H56RznPRkcE2Tg7YGyntWy38rrHZTz4Sqzu2sT9NaKnL";
+    const vessel_id = 'Random string'//This comes from clicked vessel
 
+async function handleUpVote(vote: Vote, owner_account: string){
+  let toProgramId = new PublicKey(VESSEL_REVIEW_PROGRAM_ID);
+  let vesselOwnerKey = new PublicKey(owner_account);
+  if (!publicKey) {
+    alert("Please connect your wallet!");
 
-  const handleToggle = (type: "up" | "down") => {
-    setVoteType(type)
+    return;
   }
+  const buffer = vote.serialize(0);
 
+  const [pda] = PublicKey.findProgramAddressSync(
+    [publicKey.toBuffer(), Buffer.from(vote.vessel_id)],
+    new PublicKey(VESSEL_REVIEW_PROGRAM_ID)
+  );
 
-  return (
-    <div className="flex flex-row items-start justify-between gap-x-5">
-      <div className=" h-full flex flex-col items-start justify-center px-2 py-1 ring-1 ">
-        <button
-          className={`bg-none ${voteType == "up" ? "" : "opacity-50"}  `}
-          onClick={()=>handleToggle("up")}
-        >
-            <ArrowUp size={16} />
-        </button>
-        
-        <button
-          className={`bg-none ${voteType == "down" ? "" : "opacity-50"}  `}
-          onClick={()=>handleToggle("down")}
-        >
-            <ArrowDown size={16} />
-        </button>
-        <div className="flex flex-col items-center justify-center">
-          <span className="text-semibold text-xs  ">
-            {
-              props.upvotes ?? 0
-            }
+  const instruction = new TransactionInstruction({
+    keys: [
+      {
+        pubkey: publicKey,
+        isSigner: true,
+        isWritable: false,
+      },
 
-            votes
-          </span>
-        </div>
-      </div>
-      <div className="flex flex-col w-full">
-          <p className="text-sm text-left">
-            {
+      {
+        pubkey: vesselOwnerKey,
+        isSigner: true,
+        isWritable: false,
+      },
+      {
+        pubkey: pda,
+        isSigner: false,
+        isWritable: true,
+      },
+      {
+        pubkey: SystemProgram.programId,
+        isSigner: false,
+        isWritable: false,
+      },
+    ],
+    data: buffer,
+    programId: toProgramId,
+  });
 
-            }
-          </p>
-      </div>
-    </div>
-  )
-    
+  const transaction = new Transaction();
+
+  transaction.add(instruction);
+
+  try {
+    let txid = await sendTransaction(transaction, connection);
+    console.log(txid);
+    console.log("Add member worked");
+  } catch (e) {
+    alert(JSON.stringify(e));
+  }
+}
+function handleUpVoteSubmit(event: any)
+{
+  if (!publicKey) {
+    return;
+  }
+  const content_id = 'Random content id'
+  const ownerAccount = 'Some random address'
+  const voteObj = new Vote({post_type: 'content', vessel_id: vessel_id, interaction_type: 'up', id: content_id})
+  handleUpVote(voteObj, ownerAccount)
+
+}
+async function handleDownVote(vote: Vote, owner_account: string){
+  let toProgramId = new PublicKey(VESSEL_REVIEW_PROGRAM_ID);
+  let vesselOwnerKey = new PublicKey(owner_account);
+  if (!publicKey) {
+    alert("Please connect your wallet!");
+
+    return;
+  }
+  const buffer = vote.serialize(0);
+
+  const [pda] = PublicKey.findProgramAddressSync(
+    [publicKey.toBuffer(), Buffer.from(vote.vessel_id)],
+    new PublicKey(VESSEL_REVIEW_PROGRAM_ID)
+  );
+
+  const instruction = new TransactionInstruction({
+    keys: [
+      {
+        pubkey: publicKey,
+        isSigner: true,
+        isWritable: false,
+      },
+
+      {
+        pubkey: vesselOwnerKey,
+        isSigner: true,
+        isWritable: false,
+      },
+      {
+        pubkey: pda,
+        isSigner: false,
+        isWritable: true,
+      },
+      {
+        pubkey: SystemProgram.programId,
+        isSigner: false,
+        isWritable: false,
+      },
+    ],
+    data: buffer,
+    programId: toProgramId,
+  });
+
+  const transaction = new Transaction();
+
+  transaction.add(instruction);
+
+  try {
+    let txid = await sendTransaction(transaction, connection);
+    console.log(txid);
+    console.log("Add member worked");
+  } catch (e) {
+    alert(JSON.stringify(e));
+  }
+}
+function handleDownvoteSubmit(event: any)
+{
+  if (!publicKey) {
+    return;
+  }
+  const content_id = 'Random content id'
+  const ownerAccount = 'Some random address'
+  const voteObj = new Vote({post_type: 'content', vessel_id: vessel_id, interaction_type: 'down', id: content_id})
+  handleUpVote(voteObj, ownerAccount)
+
 }
 
-export default Posts;
+ return(
+
+  <div className=' max-w-xl  rounded-md p-4 border-solid border-slate-600 border-[1px] mt-2 flex justify-start items-center'>
+    <div className='pl-auto'>
+      <LuArrowBigUp  className=  'font-light text-3xl hover:text-pink-500' onclick={handleUpVoteSubmit}/>
+      <p>{props.upvotes}</p>
+      <LuArrowBigDown className= 'font-light text-3xl hover:text-green-500'/>
+    </div>
+    <div className='ml-5 flex flex-col justify-center items-center'>
+  <p>Message body</p>
+  <p>date created</p>
+    </div>
+
+  </div>
+ );
+}
+
+export default Post;

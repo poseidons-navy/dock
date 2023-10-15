@@ -104,9 +104,9 @@ function CardItem(props: CardItemProps) {
     let user_type = 'invitee';
     let chaos_participant_id = (await chaosClient.getUser(user_id)).userName
     let use = await getUser(publicKey.toBase58());
-
+    let ownerAccount = 'Some random address'
     const member = new Member({vessel_id: vessel_id, user_type: user_type, user_id: user_id, chaos_participant_id: chaos_participant_id})
-    createMember(member, member.vessel_id)
+    createMember(member, ownerAccount)
 
 
   }

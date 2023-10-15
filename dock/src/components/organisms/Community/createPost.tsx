@@ -5,8 +5,8 @@ import  Link  from "next/link";
 function CreatePost() {
   return (
     <div>
-      <Link href="/Messages">
-      <Input placeholder="Create Proposal" className="w-full mt-2" />
+      <Link href="Posts/Messages">
+      <Input placeholder="Create Proposal" className="w-[400px] mt-2" />
       </Link>
     </div>
   );

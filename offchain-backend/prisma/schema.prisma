@@ -95,5 +95,5 @@ model Poll {
   post_id String @unique
   post    Post?  @relation(references: [id], fields: [post_id])
   decided Boolean @default(false)
-  due DateTime 
+  due DateTime
 }

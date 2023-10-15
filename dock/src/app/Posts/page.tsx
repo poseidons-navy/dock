@@ -6,12 +6,12 @@ function Posts() {
   return (
     <div>
       <Header name={"Javascript Club"}/>
-    <div className="flex justify-center">
-    <div className="max-w-2xl">
+    <div className="flex justify-center  ">
+    <div className="max-w-full ">
         <CreatePost />
         <Post />
       </div>
-      <div className="max-w-md pl-5">
+      <div className=" max-w-sm  ml-5">
         <AboutCard />
       </div>
     </div>

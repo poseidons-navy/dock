@@ -4,15 +4,46 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { DivideSquare } from 'lucide-react';
-
+import {Vote} from './vote'
+import {
+  PublicKey,
+  Transaction,
+  SystemProgram,
+  TransactionInstruction,
+} from "@solana/web3.js";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 interface PollProps{
     question: string,
     choices: string[],
     for: number,
-    against: number
+    against: number,
+    vesselId:string
 }
 
 export default function Poll(props: PollProps) {
+    const { connection } = useConnection();
+    const { publicKey, sendTransaction } = useWallet();
+    const VESSEL_REVIEW_PROGRAM_ID =
+      "H56RznPRkcE2Tg7YGyntWy38rrHZTz4Sqzu2sT9NaKnL";
+      const vessel_id =props.vesselId
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     const [checked, setChecked] = useState("YES")
     const [forV, setFor] = useState(props.for);
     const [against, setAgainst] = useState(props.against);
@@ -50,7 +81,7 @@ export default function Poll(props: PollProps) {
                         </label>
                    </div>
                    <div>
-                    <p>{forV / (forV + against) * 100}</p>
+                    <p>{Math.ceil(forV / (forV + against) * 100)}%</p>
                     <div className='p-2 bg-blue-400 rounded-sm' style={{width: `${forV / (forV + against) * 100}%`}}></div>
                    </div>
                     <div className='block'>
@@ -69,7 +100,7 @@ export default function Poll(props: PollProps) {
                         </label>
                     </div>
                     <div>
-                        <p>{against / (forV + against) * 100}</p>
+                        <p>{Math.ceil(against / (forV + against) * 100)}%</p>
                         <div className='p-2 bg-green-400 rounded-sm' style={{width: `${against / (forV + against) * 100}%`}}></div>
                    </div>
                 </div>

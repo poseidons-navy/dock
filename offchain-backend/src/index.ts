@@ -244,6 +244,43 @@ router.post("create-poll-post", "/posts/poll", async (ctx)=>{
     return
 })
 
+
+router.post("create-membership", "/users/memberships", async (ctx)=> {
+    const { body  } = ctx.request
+
+    const membership = await client.membership.create({
+        data: {
+            ...body
+        }
+    })
+
+    ctx.response.body = membership;
+    ctx.response.status = 200;
+    return
+})
+
+router.get("memberships", "/users/memberships", async (ctx)=>{
+
+    let user_id = ctx.request.query.user_id as string
+
+    const memberships = await client.membership.findMany({
+        where: {
+            user_id
+        },
+        include: {
+            vessel: true,
+            user: true,
+            
+        }
+    })
+
+    ctx.response.body = memberships 
+    ctx.status = 200
+    return
+    
+
+})
+
 router.post("create-invitation-poll", "/posts/invitation", async (ctx) => {
 
     const { body } = ctx.request
@@ -272,6 +309,7 @@ router.post("create-invitation-poll", "/posts/invitation", async (ctx) => {
             against: 0
         }
     })
+
 
     return {
         post_id: new_post.id,

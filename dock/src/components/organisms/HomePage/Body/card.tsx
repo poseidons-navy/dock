@@ -1,4 +1,5 @@
 "use client"
+import BaseContext from "@/chaos/utils/context";
 import { CardItemProps } from "./cardItem";
 
 export interface CardProps {
@@ -8,7 +9,12 @@ export interface CardProps {
 import CardItem from "./cardItem";
 
  function Card(props: CardProps) {
+  const { items } = props
+
     return ( 
+      <BaseContext.Provider value={{
+        items
+      }} >
       <div className="flex flex-row justify-center">
         <div className="flex flex-col w-4/5 items-center justify-center p-10">
           <div className="grid grid-cols-3 gap-x-10 gap-y-10 w-full">
@@ -28,6 +34,7 @@ import CardItem from "./cardItem";
           </div>
         </div>
       </div>
+      </BaseContext.Provider>
    );
  }
  

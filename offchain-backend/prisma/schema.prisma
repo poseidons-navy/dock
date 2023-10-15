@@ -55,6 +55,7 @@ model Membership {
   role                 MembershipRoles @default(invitee)
   vessel_id            String
   vessel               Vessel          @relation(references: [id], fields: [vessel_id])
+  attached_account_data String?       @default("")
 }
 
 model Post {

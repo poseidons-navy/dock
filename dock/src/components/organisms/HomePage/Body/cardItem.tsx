@@ -15,7 +15,9 @@ import { Button } from "../../../ui/button";
 import { Member } from "./Member";
 export interface CardItemProps {
   name: string
-  description: string
+  description: string,
+  vessel_id: string,
+  creator_address: string
 }
 
 function CardItem(props: CardItemProps) {

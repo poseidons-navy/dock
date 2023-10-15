@@ -1,5 +1,5 @@
-"use client"
 import { Axios } from "axios"
+import axiosClient from "./client"
 
 
 
@@ -21,8 +21,12 @@ export default class ChaosClient {
      * @returns 
      */
     createUser = async (address: string) => {
-        const user_id = (await this.ax.post<string>("/users", {
+        const user_id = (await axiosClient.post<string>("/users", {
             userName: address
+        }, {
+            headers: {
+                "Content-Type": "application/json"
+            }
         })).data
 
         return user_id

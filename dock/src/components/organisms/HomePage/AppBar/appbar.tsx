@@ -1,84 +1,143 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Image from "next/image";
-import { Plus, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { useState } from "react";
-import { Label } from "@/components/ui/label";
-import React from "react";
 import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+  PublicKey,
+  Transaction,
+  SystemProgram,
+  TransactionInstruction,
+} from "@solana/web3.js";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { useState } from "react";
+import React from "react";
+
+import PopUp from "./Sheet";
+import useChaosClient from "../../../../chaos/hooks/useChaosClient";
+import { Vessel } from "./them";
+import { createUserOffchain, createVesselOffchain } from "./offchain";
+
 function AppBar() {
-const [vesselDetails, setVesselDetails] = useState({
-  name:"",
-  description:""
-})
-function handleChange(event: React.ChangeEvent<HTMLInputElement>)
-{
-  setVesselDetails(prevDetails=>({
-    ...prevDetails,
-    [event.target.name]:event.target.value
-  }))
-}
+  const { connection } = useConnection();
+  const chaosClient = useChaosClient();
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const { publicKey, sendTransaction } = useWallet();
+
+  const VESSEL_REVIEW_PROGRAM_ID =
+  "H56RznPRkcE2Tg7YGyntWy38rrHZTz4Sqzu2sT9NaKnL";
+  async function createVessel(vessel: Vessel) {
+   
+    let toProgramId = new PublicKey(VESSEL_REVIEW_PROGRAM_ID);
+    if (!publicKey) {
+      alert("Please connect your wallet!");
+
+      return;
+    }
+    const buffer = vessel.serialize(0);
+    
+    const [pda] = PublicKey.findProgramAddressSync(
+      [publicKey.toBuffer(), Buffer.from(vessel.id)],
+      new PublicKey(VESSEL_REVIEW_PROGRAM_ID)
+    );
+ 
+    const instruction = new TransactionInstruction({
+      keys: [
+        {
+          pubkey: publicKey,
+          isSigner: true,
+          isWritable: false,
+        },
+        {
+          pubkey: pda,
+          isSigner: false,
+          isWritable: true,
+        },
+        {
+          pubkey: SystemProgram.programId,
+          isSigner: false,
+          isWritable: false,
+        },
+      ],
+      data: buffer,
+      programId: toProgramId,
+    });
+
+    const transaction = new Transaction();
+
+    transaction.add(instruction);
+   
+    try {
+      let txid = await sendTransaction(transaction, connection);
+      console.log(txid);
+      console.log("create vessel worked");
+    } catch (e) {
+      alert(JSON.stringify(e));
+    }
+  }
+  async function createUser() {
+    console.log("debugging");
+    let chaos_userId;
+
+    if (publicKey) {
+      console.log("Debug2");
+      chaos_userId = await chaosClient.createUser(publicKey.toBase58());
+      //Create a user on the offchain
+      // const offchainuserId = await createUserOffchain(publicKey.toBase58(), chaos_userId)
+      //    //create vessel on chaos and offchain
+      const vesselData = {
+        name: name,
+        description: description,
+        vesselIdentifier: "sample",
+      };
+      const chaosVessel = await chaosClient.createVessel(
+        chaos_userId,
+        vesselData
+      );
+
+      // const offchainvesselid = await createVesselOffchain(name, description, chaosVessel, ['vessel'], offchainuserId)
+      //vesselid and user_id from offchain
+
+      const vessel = new Vessel({
+        name: "name",
+        id: "offchainvesselid",
+        amount_token: 90,
+        description: 'description',
+        creator_id: "offchainuserId",
+        chaos_channel_id: "chaosVessel",
+      });
+      console.log(vessel);
+      createVessel(vessel);
+    } else {
+      alert("Please connect wallet");
+      return;
+    }
+  }
+
+  function handleSubmit(event: any) {
+    console.log("HandleSubmit");
+    event.preventDefault();
+    createUser();
+  }
 
   return (
     <div className="flex flex-row items-center justify-center w-full space-x-4 pt-4">
       <div className="flex flex-row items-center justify-center w-1/2 ">
         <Input placeholder="Find your vessel" className="w-full" />
         <Button size="sm">
-          <Search size="16px" className="hover:bg-zinc-700"/>
+          <Search size="16px" className="hover:bg-zinc-700" />
         </Button>
       </div>
       <div className="flex flex-row items-center justify-center space-x-2 ">
         <div className="grid grid-cols-2 gap-2">
-          <Sheet key="bottom">
-            <SheetTrigger >
-              <Button variant="outline" color="black">Create vessel</Button>
-            </SheetTrigger>
-            <SheetContent side="bottom">
-              <SheetHeader>
-                <SheetTitle>Vessel details</SheetTitle>
-                <SheetDescription>Enter vessel details here</SheetDescription>
-              </SheetHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="name" className="text-right">
-                    Name
-                  </Label>
-                  <Input
-                    id="name"
-                    value={vesselDetails.name}
-                    className="col-span-3"
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="description" className="text-right">
-                    Description
-                  </Label>
-                  <Input
-                    id="description"
-                    value={vesselDetails.description}
-                    className="col-span-3"
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-              <SheetFooter>
-                <SheetClose asChild>
-                  <Button type="submit">Save</Button>
-                </SheetClose>
-              </SheetFooter>
-            </SheetContent>
-          </Sheet>
+          <PopUp
+            handleSubmit={handleSubmit}
+            name={name}
+            description={description}
+            setName={setName}
+            setDescription={setDescription}
+          />
         </div>
         <WalletMultiButton />
       </div>

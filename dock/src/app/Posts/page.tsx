@@ -1,18 +1,20 @@
 import Header from "@/components/organisms/Community/Header";
 import CreatePost from "@/components/organisms/Community/createPost";
-import About from "@/components/organisms/Community/About";
 import Post from "@/components/organisms/Community/Posts";
+import AboutCard from "@/components/organisms/Community/AboutCard";
 function Posts() {
   return (
     <div>
       <Header />
-      <div>
+    <div className="flex justify-center">
+    <div className="max-w-2xl">
         <CreatePost />
         <Post />
       </div>
-      <div>
-        <About />
+      <div className="max-w-md pl-5">
+        <AboutCard />
       </div>
+    </div>
     </div>
   );
 }

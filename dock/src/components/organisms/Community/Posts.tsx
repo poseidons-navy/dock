@@ -5,11 +5,11 @@ import { FaRegComment } from "react-icons/fa";
 import { IoIosShareAlt } from "react-icons/io";
 function Posts() {
   return (
-    <div className="flex">
+    <div className="flex py-5">
       <div>
-        <LuArrowBigUp />
+        <LuArrowBigUp className="text-2xl hover:text-pink-300"/>
         <p>124</p>
-        <LuArrowBigDown />
+        <LuArrowBigDown className="text-2xl hover:text-blue-300"/>
       </div>
       <div>
         <p className="text-zinc-500">Proposal by Random username</p>
@@ -23,12 +23,12 @@ function Posts() {
           writing. How do we know which hand is more dominant, is it more of a
           learned trait or genetic?
         </p>
-        <div>
-          <div className="flex items-center">
+        <div className="flex">
+          <div className="flex items-center hover:bg-zinc-400 rounded-sm p-2">
             <FaRegComment />
             <p className="pl-3">73 comments</p>
           </div>
-          <div className="pl-6">
+          <div className="pl-6 flex justify-center items-center hover:bg-zinc-400 rounded-sm p-2">
             <IoIosShareAlt />
             <p className="pl-2">share</p>
           </div>

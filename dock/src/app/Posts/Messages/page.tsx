@@ -98,20 +98,6 @@ function TabsDemo() {
     }
 
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   async function createPoll(message: Message,  owner_account: string)
   {
     if (!publicKey) {
@@ -243,7 +229,7 @@ async function handleSubmitContent(event: any){
               </div>
             </CardContent>
             <CardFooter>
-              <Button>Post</Button>
+              <Button onClick={handleSubmitContent}>Post</Button>
             </CardFooter>
           </Card>
         </TabsContent>

@@ -14,6 +14,8 @@ interface PollProps{
 
 export default function Poll(props: PollProps) {
     const [checked, setChecked] = useState("YES")
+    const [forV, setFor] = useState(props.for);
+    const [against, setAgainst] = useState(props.against);
 
     function onOptionChange(e: React.ChangeEvent<HTMLInputElement>) {
         setChecked(e.target.value)
@@ -21,6 +23,11 @@ export default function Poll(props: PollProps) {
 
     function handleVote() {
         alert(`${checked} has been voted`)
+        if (checked == "YES") {
+            setFor(forV + 1)
+        } else {
+            setAgainst(against + 1)
+        }
     }
 
     return(
@@ -43,8 +50,8 @@ export default function Poll(props: PollProps) {
                         </label>
                    </div>
                    <div>
-                    <p>{props.for / (props.for + props.against) * 100}</p>
-                    <div className='p-2 bg-blue-400 rounded-sm' style={{width: `${props.for / (props.for + props.against) * 100}%`}}></div>
+                    <p>{forV / (forV + against) * 100}</p>
+                    <div className='p-2 bg-blue-400 rounded-sm' style={{width: `${forV / (forV + against) * 100}%`}}></div>
                    </div>
                     <div className='block'>
                         <input 
@@ -62,12 +69,12 @@ export default function Poll(props: PollProps) {
                         </label>
                     </div>
                     <div>
-                        <p>{props.against / (props.for + props.against) * 100}</p>
-                        <div className='p-2 bg-green-400 rounded-sm' style={{width: `${props.against / (props.for + props.against) * 100}%`}}></div>
+                        <p>{against / (forV + against) * 100}</p>
+                        <div className='p-2 bg-green-400 rounded-sm' style={{width: `${against / (forV + against) * 100}%`}}></div>
                    </div>
                 </div>
             <div className='flex flex-row items-center justify-around'>
-                <p>Total Votes: {props.for + props.against}</p>
+                <p>Total Votes: {forV + against}</p>
                 <Button onClick={handleVote}>Vote</Button>
             </div>
         </div>

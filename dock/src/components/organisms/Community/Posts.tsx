@@ -1,5 +1,4 @@
 "use client";
-import { IconContext } from 'react-icons';
 import { useState } from 'react';
 import { LuArrowBigUp, LuArrowBigDown } from "react-icons/lu";
 import { PiArrowFatUpFill, PiArrowFatDownFill } from "react-icons/pi";

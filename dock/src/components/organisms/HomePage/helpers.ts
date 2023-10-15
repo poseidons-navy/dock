@@ -45,9 +45,10 @@ export async function createVessel(url: string, params: CreateVessel): Promise<C
     }
 }
 
-export async function getVessels(url: string): Promise<GetVessels> {
+export async function getVessels(url: string): Promise<GetVessels[]> {
     try {
         let result = await axios.get(`${url}/vessels`);
+        console.log(result.data)
         return result.data;
     } catch(err) {
         console.log(err);

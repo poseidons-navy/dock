@@ -1,9 +1,5 @@
 import axios from "axios";
 
-interface CreateContentInterface {
-   post_id: string,
-   content_id: string
-}
 interface CreatePollInterface {
     post_id: string,
     poll_id: string
@@ -30,24 +26,24 @@ export async function createInvitationOffchain(user_id: string, type: string, ch
 
     console.log(response);
 }
-export async function createContentOffchain(user_id: string, type: string, chaos_message_id: string) {
-    const response = await axios.post("http://localhost:8089/posts/content", {
+export async function createContentOffchain(user_id: string, type: string, chaos_message_id: string):  Promise<CreatePollInterface> {
+    const response = await axios.post<CreatePollInterface>("http://localhost:8089/posts/poll", {
         user_id: user_id,
         type: type,
         chaos_message_id: chaos_message_id
     });
 
-    console.log(response);
+    return response.data;
 }
-export async function createPollOffchain(user_id: string, type: string, chaos_message_id: string) {
-    const response = await axios.post("http://localhost:8089/posts/poll", {
+export async function createPollOffchain(user_id: string, type: string, chaos_message_id: string): Promise<CreatePollInterface> {
+    const response = await axios.post<CreatePollInterface>("http://localhost:8089/posts/poll", {
         user_id: user_id,
         type: type,
         chaos_message_id: chaos_message_id
 
     });
 
-    console.log(response);
+    return response.data;
 }
 
 export async function getUser(address: string): Promise<string> {

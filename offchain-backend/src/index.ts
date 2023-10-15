@@ -216,7 +216,7 @@ router.post("create-content-post", "/posts/content", async (ctx)=>{
 router.post("create-poll-post", "/posts/poll", async (ctx)=>{
 
     const { body } = ctx.request;
-    console.log(body)
+    
     const parsedPostData = schemas.Post.parse(body)
 
     const new_post = await client.post.create({
@@ -231,6 +231,7 @@ router.post("create-poll-post", "/posts/poll", async (ctx)=>{
         data: {
             id: generate_unique_id("poll_post"),
             post_id: new_post?.id,
+            due: dayjs().add(24, "h")
         }
     })
 

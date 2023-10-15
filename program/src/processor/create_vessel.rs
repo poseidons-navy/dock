@@ -12,7 +12,7 @@ use solana_program::{
 
 pub fn get_vessel_size(vessel: &Vessel) -> usize {
     const PUBKEY_SIZE: usize = 32;
-    let mut member_size = 0;
+    let mut member_size = 4;
 
     for x in vessel.members.iter() {
         member_size += (2 * PUBKEY_SIZE) + (4 + x.user_id.len()) + (4 + x.user_type.len() + 4 + x.chaos_participant_id.len())
@@ -21,13 +21,13 @@ pub fn get_vessel_size(vessel: &Vessel) -> usize {
     let amount_token = 4;
     let is_created = 1;
 
-    let mut category_size = 0;
+    let mut category_size = 4;
     for y in vessel.categories.iter() {
         category_size += 4 + y.len()
     }
 
     // Calculating content size
-    let mut content_size = 0;
+    let mut content_size = 4;
     let upvote_size = 4;
     let downvote_size = 4;
     for z in vessel.contents.iter() {
@@ -35,13 +35,13 @@ pub fn get_vessel_size(vessel: &Vessel) -> usize {
     }
 
     // Calculating post size
-    let mut post_size = 0;
+    let mut post_size = 4;
     for w in vessel.posts.iter() {
         post_size += PUBKEY_SIZE + 4 + w.chaos_message_id.len() + 4 + w.id.len() + 4 + w.post_type.len() + 4 + w.user_id.len()
     }
 
     // Calculating invitation size
-    let mut invitation_size = 0;
+    let mut invitation_size = 4;
     let for_invite = 4;
     let against_invite = 4;
     for v in vessel.invites.iter() {
@@ -49,7 +49,7 @@ pub fn get_vessel_size(vessel: &Vessel) -> usize {
     }
 
     // Calculating poll size
-    let mut poll_size = 0;
+    let mut poll_size = 4;
     let for_poll = 4;
     let against_poll = 4;
     for  u in vessel.polls.iter() {
@@ -200,6 +200,7 @@ mod tests {
         super::*,
         solana_program_test::*,
         solana_program::system_program,
+        solana_program::msg,
         solana_program::instruction::{AccountMeta, Instruction},
         solana_sdk::{signature::Signer, transaction::Transaction, signer::keypair::Keypair},
         crate::instruction::VesselInstructionStruct,

@@ -5,7 +5,7 @@ import AboutCard from "@/components/organisms/Community/AboutCard";
 function Posts() {
   return (
     <div>
-      <Header />
+      <Header name={"Javascript Club"}/>
     <div className="flex justify-center">
     <div className="max-w-2xl">
         <CreatePost />

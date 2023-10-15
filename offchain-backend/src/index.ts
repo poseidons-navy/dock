@@ -63,9 +63,8 @@ router.post("create-new-user", "/users", async (ctx)=> {
 router.get("get-user", "/users", async (ctx)=>{
 
     const { query } = ctx.request
-
     const address = query["address"] ?? null
-
+   
     if(!isString(address)){
         ctx.response.status = 400
         ctx.response.body = "INVALID ADDRESS"
@@ -130,7 +129,7 @@ router.post("create-vessel", "/vessels", async (ctx)=>{
 
     const vessel = await client.vessel.create({
         data: {
-            id: generate_unique_id("vsl"),
+            id: generate_unique_id("vsl").slice(0,32),
             ...parsed.data
         }
     })
@@ -216,8 +215,8 @@ router.post("create-content-post", "/posts/content", async (ctx)=>{
 
 router.post("create-poll-post", "/posts/poll", async (ctx)=>{
 
-    const { body } = ctx.request.body;
-
+    const { body } = ctx.request;
+    console.log(body)
     const parsedPostData = schemas.Post.parse(body)
 
     const new_post = await client.post.create({
@@ -247,7 +246,7 @@ router.post("create-poll-post", "/posts/poll", async (ctx)=>{
 router.post("create-invitation-poll", "/posts/invitation", async (ctx) => {
 
     const { body } = ctx.request
-
+    console.log(body)
     const parsedBody = schemas.Post.extend({
         invitee: z.string()
     }).parse(body)

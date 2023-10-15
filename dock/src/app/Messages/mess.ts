@@ -18,7 +18,7 @@ interface VesselArguements {
     due?: string,
 }
 
-export class Vessel {
+export class Message {
     id: string;
     creator_id: string;
     name: string;

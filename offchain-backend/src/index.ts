@@ -282,6 +282,31 @@ router.post("create-invitation-poll", "/posts/invitation", async (ctx) => {
 })
 
 
+router.get("get-posts", "/posts", async (ctx)=> {
+
+    const chaos_message_id = ctx.query["chaos_message_id"] as string
+
+    const posts = await client.post.findMany({
+        where: {
+            chaos_message_id: chaos_message_id
+        },
+        include: {
+            content: true,
+            invitation: true,
+            poll:true,
+            user: true
+        }
+    })
+    
+
+    ctx.response.body = posts 
+    ctx.response.status = 200 
+
+    return 
+
+})
+
+
 app.use(router.routes())
 
 

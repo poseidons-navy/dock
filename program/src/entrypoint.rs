@@ -55,6 +55,9 @@ pub fn process_instruction(
         }
         VesselInstruction::AddMember { user_type, user_id, chaos_participant_id, vessel_id } => {
             add_member::add_member(vessel_id, user_type, user_id, chaos_participant_id, accounts, program_id)
+        },
+        VesselInstruction::Test {  } => {
+            Ok(())
         }
     }
 }

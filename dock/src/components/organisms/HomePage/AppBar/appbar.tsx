@@ -77,14 +77,13 @@ function AppBar() {
     }
   }
   async function createUser() {
-    console.log("debugging");
     let chaos_userId;
 
     if (publicKey) {
       console.log("Debug2");
       chaos_userId = await chaosClient.createUser(publicKey.toBase58());
       //Create a user on the offchain
-      // const offchainuserId = await createUserOffchain(publicKey.toBase58(), chaos_userId)
+      const offchainuserId = await createUserOffchain(publicKey.toBase58(), chaos_userId)
       //    //create vessel on chaos and offchain
       const vesselData = {
         name: name,
@@ -96,16 +95,16 @@ function AppBar() {
         vesselData
       );
 
-      // const offchainvesselid = await createVesselOffchain(name, description, chaosVessel, ['vessel'], offchainuserId)
+      const offchainvesselid = await createVesselOffchain(name, description, chaosVessel, ['vessel'], offchainuserId)
       //vesselid and user_id from offchain
 
       const vessel = new Vessel({
-        name: "name",
-        id: "offchainvesselid",
+        name: name,
+        id: offchainvesselid,
         amount_token: 90,
-        description: 'description',
-        creator_id: "offchainuserId",
-        chaos_channel_id: "chaosVessel",
+        description: description,
+        creator_id: offchainuserId,
+        chaos_channel_id: chaosVessel,
       });
       console.log(vessel);
       createVessel(vessel);

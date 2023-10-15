@@ -63,9 +63,9 @@ type myProps = {
           </div>
           <SheetFooter>
             <SheetClose asChild>
-              <Button type="submit" onClick={handleSubmit}>
+              {/* <Button type="submit" onClick={handleSubmit}>
                 Save
-              </Button>
+              </Button> */}
             </SheetClose>
           </SheetFooter>
         </SheetContent>

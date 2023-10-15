@@ -33,6 +33,7 @@ router.post("create-new-user", "/users", async (ctx)=> {
     const parsed = schemas.User.safeParse(body)
    
     if(!parsed.success) {
+        console.log(parsed.error)
         ctx.response.status = 400
         ctx.response.body = "INVALID BODY"
         return
@@ -127,7 +128,7 @@ router.post("create-vessel", "/vessels", async (ctx)=>{
         return
     }
 
-    const vessel = client.vessel.create({
+    const vessel = await client.vessel.create({
         data: {
             id: generate_unique_id("vsl"),
             ...parsed.data
@@ -136,6 +137,7 @@ router.post("create-vessel", "/vessels", async (ctx)=>{
 
     ctx.response.status = 201
     ctx.response.body = vessel
+    return
 
 })
 

@@ -1,12 +1,11 @@
 import * as borsh from '@project-serum/borsh'
-import BN from 'bn.js';
 
 interface VesselArguements {
     id?: string,
     name?: string,
     description?: string,
-    amount_token?: BN,
-    address?: string,
+    amount_token?: number,
+    interaction_type?: string,
     user_type?: string,
     user_id?: string,
     chaos_participant_id?: string,
@@ -24,9 +23,9 @@ export class Vessel {
     creator_id: string;
     name: string;
     description: string;
-    amount_token: BN;
+    amount_token: number;
     due: string;
-    address: string;
+    interaction_type: string;
     chaos_message_id: string;
     post_type: string;
     user_type: string;
@@ -43,8 +42,8 @@ export class Vessel {
         this.id = fields.id ?? "";
         this.name = fields.name ?? "";
         this.description = fields.description ?? "";
-        this.amount_token = fields.amount_token ?? new BN(0, 10);
-        this.address = fields.address ?? "";
+        this.amount_token = fields.amount_token ?? 0;
+        this.interaction_type = fields.interaction_type ?? "";
 
         this.user_type = fields.user_type ?? "";
         this.user_id = fields.user_id ?? "";
@@ -61,30 +60,37 @@ export class Vessel {
     borshInstructionSchema = borsh.struct([
 
         borsh.u8('variant'),
-        borsh.str('name'),
         borsh.str('id'),
+        borsh.str('creator_id'),
+
+        borsh.str('name'),
         borsh.str('description'),
-        borsh.u64('amount_token'),
-        borsh.str('address'),
+        borsh.str('chaos_channel_id'),
+
+        borsh.u32('amount_token'),
         borsh.str('user_type'),
         borsh.str('user_id'),
         borsh.str('chaos_participant_id'),
         borsh.str('vessel_id'),
-        borsh.str('creator_id'),
-        borsh.str('chaos_channel_id'),
-        borsh.str('post_type'),
-        borsh.str('chaos_message_id'),
         borsh.str('post_id'),
+        borsh.str('chaos_message_id'),
         borsh.str('due'),
+        borsh.str('post_type'),
+
+        borsh.str('interaction_type'),
 
 
-    ]) ?? ""
+    ])
 
-    serialize(): Buffer {
 
+    serialize(variant: number): Buffer {
         const buffer = Buffer.alloc(10000)
 
-        this.borshInstructionSchema.encode({ variant: 0, ...this }, buffer)
+        let { borshInstructionSchema, serialize, ...rest } = this
+        this.borshInstructionSchema.encode({
+            ...rest, variant: variant
+        }, buffer)
+        console.log('4')
         console.log("this almost")
         return buffer.subarray(0, this.borshInstructionSchema.getSpan(buffer))
 

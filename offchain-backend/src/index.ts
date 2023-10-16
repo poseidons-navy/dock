@@ -216,7 +216,7 @@ router.post("create-content-post", "/posts/content", async (ctx)=>{
 router.post("create-poll-post", "/posts/poll", async (ctx)=>{
 
     const { body } = ctx.request;
-    console.log(body)
+    
     const parsedPostData = schemas.Post.parse(body)
 
     const new_post = await client.post.create({
@@ -231,6 +231,7 @@ router.post("create-poll-post", "/posts/poll", async (ctx)=>{
         data: {
             id: generate_unique_id("poll_post"),
             post_id: new_post?.id,
+            due: dayjs().add(24, "h").toDate()
         }
     })
 
@@ -241,6 +242,43 @@ router.post("create-poll-post", "/posts/poll", async (ctx)=>{
     }
 
     return
+})
+
+
+router.post("create-membership", "/users/memberships", async (ctx)=> {
+    const { body  } = ctx.request
+
+    const membership = await client.membership.create({
+        data: {
+            ...body
+        }
+    })
+
+    ctx.response.body = membership;
+    ctx.response.status = 200;
+    return
+})
+
+router.get("memberships", "/users/memberships", async (ctx)=>{
+
+    let user_id = ctx.request.query.user_id as string
+
+    const memberships = await client.membership.findMany({
+        where: {
+            user_id
+        },
+        include: {
+            vessel: true,
+            user: true,
+            
+        }
+    })
+
+    ctx.response.body = memberships 
+    ctx.status = 200
+    return
+    
+
 })
 
 router.post("create-invitation-poll", "/posts/invitation", async (ctx) => {
@@ -272,11 +310,37 @@ router.post("create-invitation-poll", "/posts/invitation", async (ctx) => {
         }
     })
 
+
     return {
         post_id: new_post.id,
         invitation_id: invitation.id
     }
 
+
+})
+
+
+router.get("get-posts", "/posts", async (ctx)=> {
+
+    const chaos_message_id = ctx.query["chaos_message_id"] as string
+
+    const posts = await client.post.findMany({
+        where: {
+            chaos_message_id: chaos_message_id
+        },
+        include: {
+            content: true,
+            invitation: true,
+            poll:true,
+            user: true
+        }
+    })
+    
+
+    ctx.response.body = posts 
+    ctx.response.status = 200 
+
+    return 
 
 })
 

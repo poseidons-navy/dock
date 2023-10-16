@@ -10,12 +10,14 @@ import {
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import useChaosClient from "../../../../chaos/hooks/useChaosClient";
 import { createUserOffchain } from "../AppBar/offchain";
-import { getUser } from "../../../../app/Messages/messagesoffchain";
+import { getUser } from "../../../../app/Posts/Messages/messagesoffchain";
 import { Button } from "../../../ui/button";
 import { Member } from "./Member";
 export interface CardItemProps {
   name: string
-  description: string
+  description: string,
+  vessel_id: string,
+  creator_address: string
 }
 
 function CardItem(props: CardItemProps) {
@@ -37,7 +39,7 @@ function CardItem(props: CardItemProps) {
     const buffer = member.serialize(0);
 
     const [pda] = PublicKey.findProgramAddressSync(
-      [publicKey.toBuffer(), Buffer.from(member.id)],
+      [publicKey.toBuffer(), Buffer.from(member.vessel_id)],
       new PublicKey(VESSEL_REVIEW_PROGRAM_ID)
     );
 
@@ -103,8 +105,10 @@ function CardItem(props: CardItemProps) {
     }
     let user_type = 'invitee';
     let chaos_participant_id = (await chaosClient.getUser(user_id)).userName
+    let use = await getUser(publicKey.toBase58());
+    let ownerAccount = 'Some random address'
     const member = new Member({vessel_id: vessel_id, user_type: user_type, user_id: user_id, chaos_participant_id: chaos_participant_id})
-    createMember(member, )
+    createMember(member, ownerAccount)
 
 
   }

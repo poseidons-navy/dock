@@ -8,7 +8,7 @@ export default class ChaosClient {
     constructor(client: Axios){
         console.log("Initialized")
         this.ax = client
-        console.log(this.ax)
+        // console.log(this.ax)
     }
 
 
@@ -126,6 +126,16 @@ export default class ChaosClient {
         }>>(`/channels/${channel_id}/participants`)).data
 
         return users?.map(({userName})=>({address: userName}))
+    }
+
+    addChannelParticipants = async (channel_id: string, user_id: string) =>
+    {
+        const participant_id = (await this.ax.post<string>(`/channels/${channel_id}/participants`, {
+            channelID: channel_id,
+            participantID: user_id
+        })).data
+
+        return participant_id
     }
 
 

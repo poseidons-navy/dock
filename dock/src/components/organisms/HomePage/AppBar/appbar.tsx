@@ -17,7 +17,7 @@ import PopUp from "./Sheet";
 import useChaosClient from "../../../../chaos/hooks/useChaosClient";
 import { Vessel } from "./them";
 import { createUserOffchain, createVesselOffchain } from "./offchain";
-
+import { getUserFromAddress } from "../helpers";
 function AppBar() {
   const { connection } = useConnection();
   const chaosClient = useChaosClient();
@@ -76,14 +76,20 @@ function AppBar() {
       alert(JSON.stringify(e));
     }
   }
+  
   async function createUser() {
     let chaos_userId;
-
+    let offchainuserId;
     if (publicKey) {
+      const userData = await getUserFromAddress( 'http://localhost:8089', publicKey.toBase58())
+      if(!userData)
+      {
+        chaos_userId = await chaosClient.createUser(publicKey.toBase58());
+        //Create a user on the offchain
+        offchainuserId = await createUserOffchain(publicKey.toBase58(), chaos_userId)
+      }
       console.log("Debug2");
-      chaos_userId = await chaosClient.createUser(publicKey.toBase58());
-      //Create a user on the offchain
-      const offchainuserId = await createUserOffchain(publicKey.toBase58(), chaos_userId)
+     
       //    //create vessel on chaos and offchain
       const vesselData = {
         name: name,
@@ -91,11 +97,11 @@ function AppBar() {
         vesselIdentifier: "sample",
       };
       const chaosVessel = await chaosClient.createVessel(
-        chaos_userId,
+        userData.chaos_user_id??chaos_userId,
         vesselData
       );
 
-      const offchainvesselid = await createVesselOffchain(name, description, chaosVessel, ['vessel'], offchainuserId)
+      const offchainvesselid = await createVesselOffchain(name, description, chaosVessel, ['vessel'], userData.id??offchainuserId)
       //vesselid and user_id from offchain
 
       const vessel = new Vessel({
@@ -103,11 +109,14 @@ function AppBar() {
         id: offchainvesselid,
         amount_token: 90,
         description: description,
-        creator_id: offchainuserId,
+        creator_id: offchainuserId??userData.id,
         chaos_channel_id: chaosVessel,
       });
       console.log(vessel);
       createVessel(vessel);
+
+      // Add user as participant in chaos channel
+      chaosC
     } else {
       alert("Please connect wallet");
       return;
@@ -115,7 +124,6 @@ function AppBar() {
   }
 
   function handleSubmit(event: any) {
-    console.log("HandleSubmit");
     event.preventDefault();
     createUser();
   }

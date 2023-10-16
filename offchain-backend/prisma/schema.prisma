@@ -37,6 +37,7 @@ model User {
 
 model Vessel {
   id                String       @id // vessel id
+  is_initialized Boolean @default(false)
   name              String?
   description       String?
   chaose_channel_id String       @unique
@@ -54,6 +55,7 @@ model Membership {
   role                 MembershipRoles @default(invitee)
   vessel_id            String
   vessel               Vessel          @relation(references: [id], fields: [vessel_id])
+  attached_account_data String?       @default("")
 }
 
 model Post {
@@ -75,6 +77,7 @@ model Invitation {
   against Int // the number of vots agains
   post_id String   @unique // the post id @unique
   post    Post?    @relation(references: [id], fields: [post_id])
+  decided Boolean @default(false)
 }
 
 model Content {
@@ -83,6 +86,7 @@ model Content {
   downvotes Int    @default(0)
   post_id   String @unique
   post      Post?  @relation(references: [id], fields: [post_id])
+  last_passed_threshold Int? @default(0)
 }
 
 model Poll {
@@ -91,4 +95,6 @@ model Poll {
   against Int    @default(0)
   post_id String @unique
   post    Post?  @relation(references: [id], fields: [post_id])
+  decided Boolean @default(false)
+  due DateTime
 }
